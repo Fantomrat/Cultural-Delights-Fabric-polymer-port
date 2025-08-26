@@ -6,11 +6,9 @@
     "###"
   ],
   "key": {
-    "#": {
-      "tag": "c:crops/corn"
-    }
+    "#": "#c:crops/corn"
   },
   "result": {
-    "item": "culturaldelights:corn_cob_crate"
+    "id": "culturaldelights:corn_cob_crate"
   }
 }

@@ -1,9 +1,9 @@
 {
   "type": "minecraft:smoking",
-  "ingredient": {
-    "tag": "c:crops/corn"
+  "ingredient": "#c:crops/corn",
+  "result": {
+    "id": "culturaldelights:smoked_corn"
   },
-  "result": "culturaldelights:smoked_corn",
   "experience": 0.35,
   "cookingtime": 100
 }

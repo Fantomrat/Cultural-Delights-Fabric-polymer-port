@@ -1,17 +1,15 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:chicken_roll"
-    }
+      "culturaldelights:chicken_roll"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:chicken_roll_slice",
-      "count": 3
+      "item": {
+        "id": "culturaldelights:chicken_roll_slice",
+        "count": 3
+      }
     }
   ]
 }

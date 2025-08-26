@@ -1,21 +1,21 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:glow_squid"
-    }
+    "culturaldelights:glow_squid"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:raw_calamari",
-      "count": 2
+      "item": {
+        "id": "culturaldelights:raw_calamari",
+        "count": 2
+      }
     },
     {
-      "item": "minecraft:glow_ink_sac",
-      "count": 3,
+      "item": {
+        "id": "minecraft:glow_ink_sac",
+        "count": 3
+      },
       "chance": 0.5
     }
   ]

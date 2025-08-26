@@ -6,11 +6,11 @@
     "###"
   ],
   "key": {
-    "#": {
-      "item": "culturaldelights:avocado"
-    }
+    "#": [
+      "culturaldelights:avocado"
+    ]
   },
   "result": {
-    "item": "culturaldelights:avocado_crate"
+    "id": "culturaldelights:avocado_crate"
   }
 }

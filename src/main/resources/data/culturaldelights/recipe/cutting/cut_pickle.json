@@ -1,17 +1,15 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:pickle"
-    }
+      "culturaldelights:pickle"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:cut_pickle",
-      "count": 2
+      "item": {
+        "id": "culturaldelights:cut_pickle",
+        "count": 2
+      }
     }
   ]
 }

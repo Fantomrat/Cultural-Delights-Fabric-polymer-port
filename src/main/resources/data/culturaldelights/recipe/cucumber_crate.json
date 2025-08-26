@@ -6,11 +6,9 @@
     "###"
   ],
   "key": {
-    "#": {
-      "item": "culturaldelights:cucumber"
-    }
+    "#": "culturaldelights:cucumber"
   },
   "result": {
-    "item": "culturaldelights:cucumber_crate"
+    "id": "culturaldelights:cucumber_crate"
   }
 }

@@ -17,17 +17,16 @@
               "term": {
                 "condition": "minecraft:match_tool",
                 "predicate": {
-                  "tag": "c:shears"
+                  "items": "#c:tools/shear"
                 }
               }
             }
           ],
-          "name": "culturaldelights:cucumber"
+          "name": "culturaldelights:white_eggplant"
         }
       ]
     },
     {
-      "name": "pool2",
       "rolls": 1,
       "entries": [
         {
@@ -39,11 +38,11 @@
                 {
                   "condition": "minecraft:match_tool",
                   "predicate": {
-                    "tag": "c:shears"
+                    "items": "#c:tools/shear"
                   }
                 }
               ],
-              "name": "culturaldelights:wild_cucumbers"
+              "name": "culturaldelights:wild_eggplants"
             },
             {
               "type": "minecraft:item",
@@ -60,7 +59,7 @@
                   "function": "minecraft:explosion_decay"
                 }
               ],
-              "name": "culturaldelights:cucumber_seeds"
+              "name": "culturaldelights:eggplant_seeds"
             }
           ]
         }

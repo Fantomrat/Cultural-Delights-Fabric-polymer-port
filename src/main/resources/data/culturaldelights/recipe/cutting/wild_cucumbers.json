@@ -1,23 +1,27 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:wild_cucumbers"
-    }
+      "culturaldelights:wild_cucumbers"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:cucumber"
+      "item": {
+        "id": "culturaldelights:cucumber",
+        "count": 1
+      }
     },
     {
-      "item": "culturaldelights:cucumber_seeds"
+      "item": {
+        "id": "culturaldelights:cucumber_seeds",
+        "count": 1
+      }
     },
     {
-      "item": "minecraft:yellow_dye",
-      "count": 2,
+      "item": {
+        "id": "minecraft:yellow_dye",
+        "count": 2
+      },
       "chance": 0.5
     }
   ]

@@ -1,18 +1,12 @@
 {
   "type": "farmersdelight:cooking",
   "ingredients": [
-    {
-      "tag": "c:crops/corn"
-    },
-    {
-      "tag": "c:crops/corn"
-    },
-    {
-      "tag": "c:crops/corn"
-    }
+      "#c:crops/corn",
+      "#c:crops/corn",
+      "#c:crops/corn"
   ],
   "result": {
-    "item": "culturaldelights:corn_dough",
+    "id": "culturaldelights:corn_dough",
     "count": 3
   },
   "experience": 0.2,

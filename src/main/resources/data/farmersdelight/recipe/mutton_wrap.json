@@ -1,20 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "c:tortillas"
-    },
-    {
-      "tag": "c:cooked_mutton"
-    },
-    {
-      "tag": "c:salad_ingredients"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "#c:tortillas",
+    "#c:cooked_mutton",
+    "#c:salad_ingredients",
+    "#c:crops/onion"
   ],
   "result": {
-    "item": "farmersdelight:mutton_wrap"
+    "id": "farmersdelight:mutton_wrap"
   }
 }

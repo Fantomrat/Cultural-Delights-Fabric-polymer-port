@@ -1,21 +1,27 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:avocado_log"
-    }
+      "culturaldelights:avocado_log"
   ],
   "tool": {
-    "type": "farmersdelight:tool",
-    "tag": "c:tools/axes"
+    "fabric:type": "farmersdelight:item_ability",
+    "action": "axe_strip"
   },
   "result": [
     {
-      "item": "minecraft:stripped_jungle_log"
+      "item": {
+        "id": "minecraft:stripped_jungle_log",
+        "count": 1
+      }
     },
     {
-      "item": "farmersdelight:tree_bark"
+      "item": {
+        "id": "farmersdelight:tree_bark",
+        "count": 1
+      }
     }
   ],
-  "sound": "minecraft:item.axe.strip"
+  "sound": {
+    "sound_id": "minecraft:item.axe.strip"
+  }
 }

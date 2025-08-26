@@ -1,21 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "minecraft:dried_kelp"
-    },
-    {
-      "item": "farmersdelight:cooked_rice"
-    },
-    {
-      "tag": "c:calamari"
-    },
-    {
-      "tag": "c:calamari"
-    }
+      "minecraft:dried_kelp",
+      "farmersdelight:cooked_rice",
+      "#c:calamari",
+      "#c:calamari"
   ],
   "result": {
-    "item": "culturaldelights:calamari_roll",
+    "id": "culturaldelights:calamari_roll",
     "count": 2
   }
 }

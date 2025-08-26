@@ -2,8 +2,7 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "pool1",
-      "rolls": 1.0,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:alternatives",
@@ -21,7 +20,7 @@
                 {
                   "condition": "minecraft:match_tool",
                   "predicate": {
-                    "tag": "farmersdelight:tools/knives"
+                    "items": "#farmersdelight:tools/knives"
                   }
                 }
               ],

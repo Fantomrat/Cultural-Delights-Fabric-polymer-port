@@ -4,12 +4,10 @@
     "#"
   ],
   "key": {
-    "#": {
-      "tag": "c:tortillas"
-    }
+    "#": "#c:tortillas"
   },
   "result": {
-    "item": "culturaldelights:tortilla_chips",
+    "id": "culturaldelights:tortilla_chips",
     "count": 2
   }
 }

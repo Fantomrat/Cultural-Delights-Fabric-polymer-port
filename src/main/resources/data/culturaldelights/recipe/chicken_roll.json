@@ -1,25 +1,17 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    " ! ",
+    " L ",
     "@?@",
     "###"
   ],
   "key": {
-    "#": {
-      "item": "minecraft:dried_kelp"
-    },
-    "@": {
-      "item": "farmersdelight:cooked_rice"
-    },
-    "?": {
-      "tag": "c:cooked_chicken"
-    },
-    "!": {
-      "item": "minecraft:beetroot"
-    }
+    "#": "minecraft:dried_kelp",
+    "@": "farmersdelight:cooked_rice",
+    "?": "#c:foods/cooked_chicken",
+    "L": "minecraft:beetroot"
   },
   "result": {
-    "item": "culturaldelights:chicken_roll"
+    "id": "culturaldelights:chicken_roll"
   }
 }

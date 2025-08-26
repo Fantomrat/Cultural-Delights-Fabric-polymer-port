@@ -1,18 +1,12 @@
 {
   "type": "farmersdelight:cooking",
   "ingredients": [
-    {
-      "item": "minecraft:wheat"
-    },
-    {
-      "item": "minecraft:wheat"
-    },
-    {
-      "item": "minecraft:wheat"
-    }
+      "minecraft:wheat",
+      "minecraft:wheat",
+      "minecraft:wheat"
   ],
   "result": {
-    "item": "farmersdelight:wheat_dough",
+    "id": "farmersdelight:wheat_dough",
     "count": 3
   },
   "experience": 0.2,

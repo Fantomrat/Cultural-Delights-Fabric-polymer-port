@@ -2,8 +2,7 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "pool1",
-      "rolls": 1.0,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:alternatives",
@@ -30,8 +29,7 @@
       ]
     },
     {
-      "name": "pool2",
-      "rolls": 1.0,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",

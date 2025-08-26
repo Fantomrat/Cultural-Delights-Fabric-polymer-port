@@ -6,11 +6,9 @@
     "###"
   ],
   "key": {
-    "#": {
-      "item": "culturaldelights:eggplant"
-    }
+    "#": "culturaldelights:eggplant"
   },
   "result": {
-    "item": "culturaldelights:eggplant_crate"
+    "id": "culturaldelights:eggplant_crate"
   }
 }

@@ -5,6 +5,30 @@
       "rolls": 1,
       "entries": [
         {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "minecraft:random_chance",
+              "chance": 0.2
+            },
+            {
+              "condition": "minecraft:inverted",
+              "term": {
+                "condition": "minecraft:match_tool",
+                "predicate": {
+                  "items": "#c:tools/shear"
+                }
+              }
+            }
+          ],
+          "name": "culturaldelights:cucumber"
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
           "type": "minecraft:alternatives",
           "children": [
             {
@@ -13,49 +37,28 @@
                 {
                   "condition": "minecraft:match_tool",
                   "predicate": {
-                    "enchantments": [
-                      {
-                        "enchantment": "minecraft:silk_touch",
-                        "levels": {
-                          "min": 1
-                        }
-                      }
-                    ]
+                    "items": "#c:tools/shear"
                   }
                 }
               ],
-              "name": "culturaldelights:avocado_bundle"
+              "name": "culturaldelights:wild_cucumbers"
             },
             {
               "type": "minecraft:item",
               "functions": [
                 {
-                  "function": "minecraft:set_count",
-                  "count": {
-                    "min": 2.0,
-                    "max": 4.0,
-                    "type": "minecraft:uniform"
-                  }
-                },
-                {
                   "function": "minecraft:apply_bonus",
                   "enchantment": "minecraft:fortune",
                   "formula": "minecraft:uniform_bonus_count",
                   "parameters": {
-                    "bonusMultiplier": 1
-                  }
-                },
-                {
-                  "function": "minecraft:limit_count",
-                  "limit": {
-                    "max": 8
+                    "bonusMultiplier": 2
                   }
                 },
                 {
                   "function": "minecraft:explosion_decay"
                 }
               ],
-              "name": "culturaldelights:avocado"
+              "name": "culturaldelights:cucumber_seeds"
             }
           ]
         }

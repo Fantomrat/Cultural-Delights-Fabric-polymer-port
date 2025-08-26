@@ -1,17 +1,15 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "tag": "c:tortillas"
-    }
+    "#c:tortillas"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:tortilla_chips",
-      "count": 3
+      "item": {
+        "id":  "culturaldelights:tortilla_chips",
+        "count": 3
+      }
     }
   ]
 }

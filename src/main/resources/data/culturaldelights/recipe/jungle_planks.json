@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "group": "planks",
   "ingredients": [
-    {
-      "tag": "culturaldelights:avocado_logs"
-    }
+
+    "#culturaldelights:avocado_logs"
+
   ],
   "result": {
-    "item": "minecraft:jungle_planks",
+    "id": "minecraft:jungle_planks",
     "count": 4
   }
 }

@@ -1,21 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "c:tortillas"
-    },
-    {
-      "tag": "c:cooked_fishes"
-    },
-    {
-      "tag": "c:crops/tomato"
-    },
-    {
-      "tag": "c:salad_ingredients"
-    }
+      "#c:tortillas",
+      "#c:foods/cooked_fish",
+      "#c:crops/tomato",
+      "#c:foods/cabbage"
   ],
   "result": {
-    "item": "culturaldelights:fish_taco",
+    "id": "culturaldelights:fish_taco",
     "count": 1
   }
 }

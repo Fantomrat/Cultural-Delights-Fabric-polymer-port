@@ -2,7 +2,7 @@
   "parent": "farmersdelight:main/craft_knife",
   "display": {
     "icon": {
-      "item": "culturaldelights:pickle"
+      "id": "culturaldelights:pickle"
     },
     "title": "Funniest thing I've ever seen!",
     "description": "Pickle a cucumber in the fermenter",
@@ -18,8 +18,8 @@
         "items": [
           {
             "items": [
-	      "culturaldelights:pickle"
- 	    ]
+              "culturaldelights:pickle"
+            ]
           }
         ]
       }

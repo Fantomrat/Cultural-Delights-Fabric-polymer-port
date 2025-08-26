@@ -1,21 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "c:bread"
-    },
-    {
-      "tag": "c:cooked_mutton"
-    },
-    {
-      "tag": "c:cooked_eggs"
-    },
-    {
-      "item": "minecraft:beetroot"
-    }
+    "#c:foods/bread",
+    "#c:foods/cooked_mutton",
+    "#c:foods/cooked_egg",
+    "minecraft:beetroot"
   ],
   "result": {
-    "item": "culturaldelights:mutton_sandwich",
+    "id": "culturaldelights:mutton_sandwich",
     "count": 1
   }
 }

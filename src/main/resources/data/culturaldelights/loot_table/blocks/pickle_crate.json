@@ -2,12 +2,11 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "pool1",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "culturaldelights:eggplant_crate"
+          "name": "culturaldelights:pickle_crate"
         }
       ],
       "conditions": [

@@ -1,17 +1,15 @@
 {
   "type": "farmersdelight:cutting",
   "ingredients": [
-    {
-      "item": "culturaldelights:midori_roll"
-    }
+      "culturaldelights:midori_roll"
   ],
-  "tool": {
-    "tag": "c:tools/knives"
-  },
+  "tool": "#c:tools/knife",
   "result": [
     {
-      "item": "culturaldelights:midori_roll_slice",
-      "count": 3
+      "item": {
+        "id": "culturaldelights:midori_roll_slice",
+        "count": 3
+      }
     }
   ]
 }

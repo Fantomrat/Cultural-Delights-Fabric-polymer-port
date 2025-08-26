@@ -2,7 +2,6 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "pool1",
       "rolls": 1,
       "entries": [
         {
@@ -21,7 +20,6 @@
       ]
     },
     {
-      "name": "pool2",
       "rolls": 1,
       "entries": [
         {

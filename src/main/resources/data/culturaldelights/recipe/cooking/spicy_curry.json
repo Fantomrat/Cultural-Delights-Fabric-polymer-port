@@ -1,27 +1,15 @@
 {
   "type": "farmersdelight:cooking",
   "ingredients": [
-    {
-      "item": "minecraft:blaze_powder"
-    },
-    {
-      "item": "farmersdelight:tomato_sauce"
-    },
-    {
-      "item": "farmersdelight:cooked_rice"
-    },
-    {
-      "tag": "c:crops/onion"
-    },
-    {
-      "tag": "c:cooked_chicken"
-    },
-    {
-      "tag": "c:milk"
-    }
+      "minecraft:blaze_powder",
+      "farmersdelight:tomato_sauce",
+      "farmersdelight:cooked_rice",
+      "#c:crops/onion",
+      "#c:foods/cooked_chicken",
+      "#c:drinks/milk"
   ],
   "result": {
-    "item": "culturaldelights:spicy_curry"
+    "id": "culturaldelights:spicy_curry"
   },
   "experience": 0.35,
   "cookingtime": 200
