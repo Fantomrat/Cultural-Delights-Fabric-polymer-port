@@ -1,13 +1,13 @@
 package dev.sterner.culturaldelights.common.block;
 
-import com.nhoryzon.mc.farmersdelight.block.BuddingBushBlock;
-import com.nhoryzon.mc.farmersdelight.registry.BlocksRegistry;
-import com.nhoryzon.mc.farmersdelight.util.BlockStateUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
 import net.minecraft.block.*;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
@@ -17,11 +17,12 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
+
+import static vectorwing.farmersdelight.common.registry.ModBlocks.RICH_SOIL_FARMLAND;
 
 public class CornBlock extends PlantBlock implements Fertilizable {
     public static final IntProperty AGE;
@@ -35,19 +36,29 @@ public class CornBlock extends PlantBlock implements Fertilizable {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState stateIn, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        BlockState state = super.getStateForNeighborUpdate(stateIn, direction, neighborState, world, pos, neighborPos);
+    protected MapCodec<? extends CornBlock> getCodec() {
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Codec.INT.fieldOf("age").forGetter(block -> 0)
+        ).apply(instance, ignored -> new CornBlock(AbstractBlock.Settings.create().mapColor((state) -> (Integer)state.get(CornBlock.AGE) >= 2 ? MapColor.YELLOW : MapColor.DARK_GREEN).noCollision().ticksRandomly().breakInstantly().sounds(BlockSoundGroup.CROP).pistonBehavior(PistonBehavior.DESTROY))));
+    }
+
+
+
+
+    @Override
+    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+        BlockState state1 = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
         if (!state.isAir()) {
             if (direction == Direction.UP) {
                 return state.with(SUPPORTING, this.isSupportingCornUpper(neighborState));
             }
         }
-        return state;
+        return state1;
     }
 
     @Override
     protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-        return floor.isOf(Blocks.FARMLAND) || floor.isOf(BlocksRegistry.RICH_SOIL_FARMLAND.get());
+        return floor.isOf(Blocks.FARMLAND) || floor.isOf(RICH_SOIL_FARMLAND.get());
     }
 
     public IntProperty getAgeProperty() {
@@ -60,11 +71,6 @@ public class CornBlock extends PlantBlock implements Fertilizable {
 
     public int getMaxAge() {
         return 3;
-    }
-
-    @Override
-    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
-        return new ItemStack(CDObjects.CORN_KERNELS);
     }
 
 
@@ -85,9 +91,8 @@ public class CornBlock extends PlantBlock implements Fertilizable {
         return topState.getBlock() == CDObjects.CORN_UPPER;
     }
 
-
     @Override
-    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state, boolean isClient) {
+    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
         BlockState upperState = world.getBlockState(pos.up());
         if (upperState.getBlock() instanceof CornUpperBlock) {
             return !((CornUpperBlock)upperState.getBlock()).isMature(upperState);
@@ -112,14 +117,14 @@ public class CornBlock extends PlantBlock implements Fertilizable {
 
     @Override
     public void grow(ServerWorld worldIn, Random rand, BlockPos pos, BlockState state) {
-        int ageGrowth = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(worldIn), 7);
+        int ageGrowth = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(worldIn), 3);
         if (ageGrowth <= this.getMaxAge()) {
             worldIn.setBlockState(pos, state.with(AGE, ageGrowth));
         } else {
             BlockState top = worldIn.getBlockState(pos.up());
             if (top.getBlock() == CDObjects.CORN_UPPER) {
                 Fertilizable growable = (Fertilizable)worldIn.getBlockState(pos.up()).getBlock();
-                if (growable.isFertilizable(worldIn, pos.up(), top, false)) {
+                if (growable.isFertilizable(worldIn, pos.up(), top)) {
                     growable.grow(worldIn, worldIn.random, pos.up(), top);
                 }
             } else {

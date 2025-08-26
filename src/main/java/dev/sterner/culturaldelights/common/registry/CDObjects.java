@@ -1,32 +1,27 @@
 package dev.sterner.culturaldelights.common.registry;
 
-import com.nhoryzon.mc.farmersdelight.FarmersDelightMod;
-import com.nhoryzon.mc.farmersdelight.block.WildCropBlock;
-import com.nhoryzon.mc.farmersdelight.registry.BlocksRegistry;
+import dev.sterner.culturaldelights.CulturalDelights;
 import dev.sterner.culturaldelights.common.block.*;
-import dev.sterner.culturaldelights.common.utils.Constants;
-import dev.sterner.culturaldelights.common.world.AvocadoPitGenerator;
-import dev.sterner.culturaldelights.common.world.AvocadoSaplingGenerator;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.*;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.text.Text;
+import vectorwing.farmersdelight.common.block.WildCropBlock;
 import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.block.PillarBlock;
-import net.minecraft.block.SaplingBlock;
-import net.minecraft.item.AliasedBlockItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.StewItem;
+import net.minecraft.block.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class CDObjects {
     public static final Map<Block, Identifier> BLOCKS = new LinkedHashMap<>();
@@ -34,110 +29,210 @@ public class CDObjects {
 
 
 
-    public static final Item AVOCADO = register("avocado", new Item(settings().food(CDFoodComponents.AVOCADO)));
-    public static final Item CUT_AVOCADO = register("cut_avocado", new Item(settings().food(CDFoodComponents.CUT_AVOCADO)));
-    public static final Item CUCUMBER = register("cucumber", new Item(settings().food(CDFoodComponents.CUCUMBER)));
-    public static final Item PICKLE = register("pickle", new Item(settings().food(CDFoodComponents.PICKLE)));
-    public static final Item CUT_CUCUMBER = register("cut_cucumber", new Item(settings().food(CDFoodComponents.CUT_CUCUMBER)));
-    public static final Item CUT_PICKLE = register("cut_pickle", new Item(settings().food(CDFoodComponents.CUT_PICKLE)));
-    public static final Item EGGPLANT = register("eggplant", new Item(settings().food(CDFoodComponents.EGGPLANT)));
-    public static final Item CUT_EGGPLANT = register("cut_eggplant", new Item(settings().food(CDFoodComponents.CUT_EGGPLANT)));
-    public static final Item SMOKED_EGGPLANT = register("smoked_eggplant", new Item(settings().food(CDFoodComponents.SMOKED_EGGPLANT)));
-    public static final Item SMOKED_TOMATO = register("smoked_tomato", new Item(settings().food(CDFoodComponents.SMOKED_TOMATO)));
-    public static final Item SMOKED_CORN = register("smoked_corn", new Item(settings().food(CDFoodComponents.SMOKED_CORN)));
-    public static final Item SMOKED_CUT_EGGPLANT = register("smoked_cut_eggplant", new Item(settings().food(CDFoodComponents.SMOKED_CUT_EGGPLANT)));
-    public static final Item SMOKED_WHITE_EGGPLANT = register("smoked_white_eggplant", new Item(settings().food(CDFoodComponents.SMOKED_WHITE_EGGPLANT)));
-    public static final Item WHITE_EGGPLANT = register("white_eggplant", new Item(settings().food(CDFoodComponents.WHITE_EGGPLANT)));
-    public static final Item CORN_COB = register("corn_cob", new Item(settings().food(CDFoodComponents.CORN_COB)));
-    public static final Item SQUID = register("squid", new Item(settings().food(CDFoodComponents.SQUID)));
-    public static final Item COOKED_SQUID = register("cooked_squid", new Item(settings().food(CDFoodComponents.COOKED_SQUID)));
-    public static final Item GLOW_SQUID = register("glow_squid", new Item(settings().food(CDFoodComponents.GLOW_SQUID)));
-    public static final Item RAW_CALAMARI = register("raw_calamari", new Item(settings().food(CDFoodComponents.RAW_CALAMARI)));
-    public static final Item COOKED_CALAMARI = register("cooked_calamari", new Item(settings().food(CDFoodComponents.COOKED_CALAMARI)));
+    public static final Item AVOCADO = register("avocado", Item::new, new Item.Settings().food(CDFoodComponents.AVOCADO));
+    public static final Item CUT_AVOCADO = register("cut_avocado", Item::new, new Item.Settings().food(CDFoodComponents.CUT_AVOCADO, CDFoodComponents.CUT_AVOCADO_CONSUMABLE));
+    public static final Item CUCUMBER = register("cucumber", Item::new, new Item.Settings().food(CDFoodComponents.CUCUMBER));
+    public static final Item PICKLE = register("pickle", Item::new, new Item.Settings().food(CDFoodComponents.PICKLE));
+    public static final Item CUT_CUCUMBER = register("cut_cucumber", Item::new, new Item.Settings().food(CDFoodComponents.CUT_CUCUMBER, CDFoodComponents.CUT_CUCUMBER_CONSUMABLE));
+    public static final Item CUT_PICKLE = register("cut_pickle", Item::new, new Item.Settings().food(CDFoodComponents.CUT_PICKLE, CDFoodComponents.CUT_PICKLE_CONSUMABLE));
+    public static final Item EGGPLANT = register("eggplant", Item::new, new Item.Settings().food(CDFoodComponents.EGGPLANT));
+    public static final Item CUT_EGGPLANT = register("cut_eggplant", Item::new, new Item.Settings().food(CDFoodComponents.CUT_EGGPLANT, CDFoodComponents.CUT_EGGPLANT_CONSUMABLE));
+    public static final Item SMOKED_EGGPLANT = register("smoked_eggplant",Item::new, new Item.Settings().food(CDFoodComponents.SMOKED_EGGPLANT));
+    public static final Item SMOKED_TOMATO = register("smoked_tomato", Item::new, new Item.Settings().food(CDFoodComponents.SMOKED_TOMATO));
+    public static final Item SMOKED_CORN = register("smoked_corn", Item::new, new Item.Settings().food(CDFoodComponents.SMOKED_CORN));
+    public static final Item SMOKED_CUT_EGGPLANT = register("smoked_cut_eggplant", Item::new, new Item.Settings().food(CDFoodComponents.SMOKED_CUT_EGGPLANT, CDFoodComponents.SMOKED_CUT_EGGPLANT_CONSUMABLE));
+    public static final Item SMOKED_WHITE_EGGPLANT = register("smoked_white_eggplant", Item::new, new Item.Settings().food(CDFoodComponents.SMOKED_WHITE_EGGPLANT));
+    public static final Item WHITE_EGGPLANT = register("white_eggplant", Item::new, new Item.Settings().food(CDFoodComponents.WHITE_EGGPLANT));
+    public static final Item CORN_COB = register("corn_cob", Item::new, new Item.Settings().food(CDFoodComponents.CORN_COB));
+    public static final Item SQUID = register("squid", Item::new, new Item.Settings().food(CDFoodComponents.SQUID));
+    public static final Item COOKED_SQUID = register("cooked_squid", Item::new, new Item.Settings().food(CDFoodComponents.COOKED_SQUID));
+    public static final Item GLOW_SQUID = register("glow_squid", Item::new, new Item.Settings().food(CDFoodComponents.GLOW_SQUID, CDFoodComponents.GLOW_SQUID_CONSUMABLE));
+    public static final Item RAW_CALAMARI = register("raw_calamari", Item::new, new Item.Settings().food(CDFoodComponents.RAW_CALAMARI));
+    public static final Item COOKED_CALAMARI = register("cooked_calamari", Item::new, new Item.Settings().food(CDFoodComponents.COOKED_CALAMARI));
 
-    public static final Item POPCORN = register("popcorn", new Item(settings().food(CDFoodComponents.POPCORN)));
-    public static final Item CORN_DOUGH = register("corn_dough", new Item(settings().food(CDFoodComponents.CORN_DOUGH)));
-    public static final Item TORTILLA = register("tortilla", new Item(settings().food(CDFoodComponents.TORTILLA)));
-    public static final Item TORTILLA_CHIPS = register("tortilla_chips", new Item(settings().food(CDFoodComponents.TORTILLA_CHIPS)));
-    public static final Item ELOTE = register("elote", new Item(settings().food(CDFoodComponents.ELOTE)));
-    public static final Item HEARTY_SALAD = register("hearty_salad", new StewItem(settings().food(CDFoodComponents.HEARTY_SALAD)));
-    public static final Item BEEF_BURRITO = register("beef_burrito", new Item(settings().food(CDFoodComponents.BEEF_BURRITO)));
-    public static final Item MUTTON_SANDWICH = register("mutton_sandwich", new Item(settings().food(CDFoodComponents.MUTTON_SANDWICH)));
-    public static final Item FRIED_EGGPLANT_PASTA = register("fried_eggplant_pasta", new StewItem(settings().food(CDFoodComponents.FRIED_EGGPLANT_PASTA)));
-    public static final Item EGGPLANT_BURGER = register("eggplant_burger", new Item(settings().food(CDFoodComponents.EGGPLANT_BURGER)));
-    public static final Item AVOCADO_TOAST = register("avocado_toast", new Item(settings().food(CDFoodComponents.AVOCADO_TOAST)));
-    public static final Item CREAMED_CORN = register("creamed_corn", new StewItem(settings().food(CDFoodComponents.CREAMED_CORN)));
-    public static final Item CHICKEN_TACO = register("chicken_taco", new Item(settings().food(CDFoodComponents.CHICKEN_TACO)));
-    public static final Item SPICY_CURRY = register("spicy_curry", new StewItem(settings().food(CDFoodComponents.SPICY_CURRY)));
-    public static final Item PORK_WRAP = register("pork_wrap", new Item(settings().food(CDFoodComponents.PORK_WRAP)));
-    public static final Item FISH_TACO = register("fish_taco", new Item(settings().food(CDFoodComponents.FISH_TACO)));
-    public static final Item MIDORI_ROLL = register("midori_roll", new Item(settings().food(CDFoodComponents.MIDORI_ROLL)));
-    public static final Item MIDORI_ROLL_SLICE = register("midori_roll_slice", new Item(settings().food(CDFoodComponents.MIDORI_ROLL_SLICE)));
-    public static final Item EGG_ROLL = register("egg_roll", new Item(settings().food(CDFoodComponents.EGG_ROLL)));
-    public static final Item CHICKEN_ROLL = register("chicken_roll", new Item(settings().food(CDFoodComponents.CHICKEN_ROLL)));
-    public static final Item CHICKEN_ROLL_SLICE = register("chicken_roll_slice", new Item(settings().food(CDFoodComponents.CHICKEN_ROLL_SLICE)));
-    public static final Item PUFFERFISH_ROLL = register("pufferfish_roll", new Item(settings().food(CDFoodComponents.PUFFERFISH_ROLL)));
-    public static final Item TROPICAL_ROLL = register("tropical_roll", new Item(settings().food(CDFoodComponents.TROPICAL_ROLL)));
-    public static final Item RICE_BALL = register("rice_ball", new Item(settings().food(CDFoodComponents.RICE_BALL)));
-    public static final Item CALAMARI_ROLL = register("calamari_roll", new Item(settings().food(CDFoodComponents.CALAMARI_ROLL)));
+    public static final Item POPCORN = register("popcorn", Item::new, new Item.Settings().food(CDFoodComponents.POPCORN, CDFoodComponents.POPCORN_CONSUMABLE));
+    public static final Item CORN_DOUGH = register("corn_dough", Item::new, new Item.Settings().food(CDFoodComponents.CORN_DOUGH));
+    public static final Item TORTILLA = register("tortilla", Item::new, new Item.Settings().food(CDFoodComponents.TORTILLA));
+    public static final Item TORTILLA_CHIPS = register("tortilla_chips", Item::new, new Item.Settings().food(CDFoodComponents.TORTILLA_CHIPS, CDFoodComponents.TORTILLA_CHIPS_CONSUMABLE));
+    public static final Item ELOTE = register("elote", Item::new, new Item.Settings().food(CDFoodComponents.ELOTE));
+    public static final Item HEARTY_SALAD = register("hearty_salad", Item::new, new Item.Settings().food(CDFoodComponents.HEARTY_SALAD, CDFoodComponents.HEARTY_SALAD_CONSUMABLE).useRemainder(Items.BOWL));
+    public static final Item BEEF_BURRITO = register("beef_burrito", Item::new, new Item.Settings().food(CDFoodComponents.BEEF_BURRITO));
+    public static final Item MUTTON_SANDWICH = register("mutton_sandwich", Item::new, new Item.Settings().food(CDFoodComponents.MUTTON_SANDWICH));
+    public static final Item FRIED_EGGPLANT_PASTA = register("fried_eggplant_pasta", Item::new, new Item.Settings().food(CDFoodComponents.FRIED_EGGPLANT_PASTA, CDFoodComponents.FRIED_EGGPLANT_PASTA_CONSUMABLE).useRemainder(Items.BOWL));
+    public static final Item EGGPLANT_BURGER = register("eggplant_burger", Item::new, new Item.Settings().food(CDFoodComponents.EGGPLANT_BURGER));
+    public static final Item AVOCADO_TOAST = register("avocado_toast", Item::new, new Item.Settings().food(CDFoodComponents.AVOCADO_TOAST));
+    public static final Item CREAMED_CORN = register("creamed_corn", Item::new, new Item.Settings().food(CDFoodComponents.CREAMED_CORN).recipeRemainder(Items.BOWL));
+    public static final Item CHICKEN_TACO = register("chicken_taco", Item::new, new Item.Settings().food(CDFoodComponents.CHICKEN_TACO));
+    public static final Item SPICY_CURRY = register("spicy_curry", Item::new, new Item.Settings().food(CDFoodComponents.SPICY_CURRY,CDFoodComponents.SPICY_CURRY_CONSUMABLE).recipeRemainder(Items.BOWL));
+    public static final Item PORK_WRAP = register("pork_wrap", Item::new, new Item.Settings().food(CDFoodComponents.PORK_WRAP));
+    public static final Item FISH_TACO = register("fish_taco", Item::new, new Item.Settings().food(CDFoodComponents.FISH_TACO));
+    public static final Item MIDORI_ROLL = register("midori_roll", Item::new, new Item.Settings().food(CDFoodComponents.MIDORI_ROLL));
+    public static final Item MIDORI_ROLL_SLICE = register("midori_roll_slice", Item::new, new Item.Settings().food(CDFoodComponents.MIDORI_ROLL_SLICE, CDFoodComponents.MIDORI_ROLL_SLICE_CONSUMABLE));
+    public static final Item EGG_ROLL = register("egg_roll", Item::new, new Item.Settings().food(CDFoodComponents.EGG_ROLL, CDFoodComponents.EGG_ROLL_CONSUMABLE));
+    public static final Item CHICKEN_ROLL = register("chicken_roll", Item::new, new Item.Settings().food(CDFoodComponents.CHICKEN_ROLL));
+    public static final Item CHICKEN_ROLL_SLICE = register("chicken_roll_slice", Item::new, new Item.Settings().food(CDFoodComponents.CHICKEN_ROLL_SLICE, CDFoodComponents.CHICKEN_ROLL_SLICE_CONSUMABLE));
+    public static final Item PUFFERFISH_ROLL = register("pufferfish_roll", Item::new, new Item.Settings().food(CDFoodComponents.PUFFERFISH_ROLL, CDFoodComponents.PUFFERFISH_ROLL_CONSUMABLE));
+    public static final Item TROPICAL_ROLL = register("tropical_roll", Item::new, new Item.Settings().food(CDFoodComponents.TROPICAL_ROLL, CDFoodComponents.TROPICAL_ROLL_CONSUMABLE));
+    public static final Item RICE_BALL = register("rice_ball", Item::new, new Item.Settings().food(CDFoodComponents.RICE_BALL, CDFoodComponents.RICE_BALL_CONSUMABLE));
+    public static final Item CALAMARI_ROLL = register("calamari_roll", Item::new, new Item.Settings().food(CDFoodComponents.CALAMARI_ROLL, CDFoodComponents.CALAMARI_ROLL_CONSUMABLE));
 
+    public static final Block AVOCADO_BUNDLE = register("avocado_bundle", Block::new, AbstractBlock.Settings.copy(Blocks.PUMPKIN), true);
+    public static final Block WILD_CUCUMBERS = register("wild_cucumbers", settings -> new WildCropBlock(StatusEffects.GLOWING, 100, settings), AbstractBlock.Settings.copy(Blocks.TALL_GRASS), true);
+    public static final Block WILD_CORN = register("wild_corn", settings -> new WildCropBlock(StatusEffects.GLOWING, 100, settings), AbstractBlock.Settings.copy(Blocks.TALL_GRASS), true);
+    public static final Block WILD_EGGPLANTS = register("wild_eggplants", settings -> new WildCropBlock(StatusEffects.GLOWING, 100, settings), AbstractBlock.Settings.copy(Blocks.TALL_GRASS), true);
 
+    public static final Block AVOCADO_LOG = register("avocado_log", PillarBlock::new, AbstractBlock.Settings.copy(Blocks.JUNGLE_LOG), true);
+    public static final Block AVOCADO_WOOD = register("avocado_wood", PillarBlock::new, AbstractBlock.Settings.copy(Blocks.JUNGLE_WOOD), true);
+    public static final Block AVOCADO_LEAVES = register("avocado_leaves", settings -> new TintedParticleLeavesBlock(0.05f, settings), AbstractBlock.Settings.copy(Blocks.JUNGLE_LEAVES), true);
 
-    public static final Block AVOCADO_BUNDLE = register("avocado_bundle", new Block(FabricBlockSettings.copy(Blocks.PUMPKIN)), settings(), true);
-
-    public static final Block WILD_CUCUMBERS = register("wild_cucumbers", new WildCropBlock(), settings(), true);
-    public static final Block WILD_CORN = register("wild_corn", new WildCropBlock(), settings(), true);
-    public static final Block WILD_EGGPLANTS = register("wild_eggplants", new WildCropBlock(), settings(), true);
-
-    public static final Block AVOCADO_LOG = register("avocado_log", new PillarBlock(FabricBlockSettings.copy(Blocks.JUNGLE_LOG)), settings(), true);
-    public static final Block AVOCADO_WOOD = register("avocado_wood", new PillarBlock(FabricBlockSettings.copy(Blocks.JUNGLE_WOOD)), settings(), true);
-    public static final Block AVOCADO_LEAVES = register("avocado_leaves", new LeavesBlock(FabricBlockSettings.copy(Blocks.JUNGLE_LEAVES)), settings(), true);
-
-    public static final Block AVOCADO_SAPLING = register("avocado_sapling", new SaplingBlock(new AvocadoSaplingGenerator(), FabricBlockSettings.copy(Blocks.OAK_SAPLING)), settings(), true);
-
-    public static final Block CUCUMBER_CROP = register("cucumbers", new CucumbersBlock(FabricBlockSettings.copy(Blocks.WHEAT)), settings(), false);
-    public static final Block EGGPLANT_CROP = register("eggplants", new EggplantBlock(FabricBlockSettings.copy(Blocks.WHEAT)), settings(), false);
-
-    public static final Block CORN_CROP = register("corn", new CornBlock(FabricBlockSettings.copy(Blocks.WHEAT)), settings(), false);
-    public static final Block CORN_UPPER = register("corn_upper", new CornUpperBlock(FabricBlockSettings.copy(Blocks.WHEAT)), settings(), false);
-
-    public static final Block AVOCADO_PIT = register("avocado_pit", new AvocadoPitBlock(new AvocadoPitGenerator(), FabricBlockSettings.copy(Blocks.OAK_SAPLING)), settings(), true);
-
-    public static final Block AVOCADO_CRATE = register("avocado_crate", new Block(FabricBlockSettings.copy(BlocksRegistry.CARROT_CRATE.get())), settings(), true);
-    public static final Block CUCUMBER_CRATE = register("cucumber_crate", new Block(FabricBlockSettings.copy(BlocksRegistry.CARROT_CRATE.get())), settings(), true);
-    public static final Block PICKLE_CRATE = register("pickle_crate", new Block(FabricBlockSettings.copy(BlocksRegistry.CARROT_CRATE.get())), settings(), true);
-    public static final Block CORN_COB_CRATE = register("corn_cob_crate", new Block(FabricBlockSettings.copy(BlocksRegistry.CARROT_CRATE.get())), settings(), true);
-    public static final Block EGGPLANT_CRATE = register("eggplant_crate", new Block(FabricBlockSettings.copy(BlocksRegistry.CARROT_CRATE.get())), settings(), true);
+     public static final Block AVOCADO_SAPLING = register("avocado_sapling", settings -> new SaplingBlock(CDWorldGenerators.AVOCADO_SAPLING_GENERATOR, settings), AbstractBlock.Settings.copy(Blocks.OAK_SAPLING), true);
 
 
-    public static final Block EXOTIC_ROLL_MEDLEY = register("exotic_roll_medley", new ExoticRollMedleyBlock(), settings(), true);
+    public static final Block CUCUMBER_CROP = register("cucumbers", CucumbersBlock::new, AbstractBlock.Settings.copy(Blocks.WHEAT), false);
+    public static final Block EGGPLANT_CROP = register("eggplants", EggplantBlock::new, AbstractBlock.Settings.copy(Blocks.WHEAT), false);
 
-    public static final Item CUCUMBER_SEEDS = register("cucumber_seeds", new AliasedBlockItem(CUCUMBER_CROP ,settings()));
-    public static final Item CORN_KERNELS = register("corn_kernels", new AliasedBlockItem(CORN_CROP, settings()));
-    public static final Item EGGPLANT_SEEDS = register("eggplant_seeds", new AliasedBlockItem(EGGPLANT_CROP, settings()));
+    public static final Block CORN_CROP = register("corn", CornBlock::new, AbstractBlock.Settings.create().mapColor((state) -> (Integer)state.get(CornBlock.AGE) >= 2 ? MapColor.YELLOW : MapColor.DARK_GREEN).noCollision().ticksRandomly().breakInstantly().sounds(BlockSoundGroup.CROP).pistonBehavior(PistonBehavior.DESTROY), false);
+    public static final Block CORN_UPPER = register("corn_upper", CornUpperBlock::new, AbstractBlock.Settings.create().mapColor((state) -> (Integer)state.get(CornUpperBlock.CORN_AGE) >= 2 ? MapColor.YELLOW : MapColor.DARK_GREEN).noCollision().ticksRandomly().breakInstantly().sounds(BlockSoundGroup.CROP).pistonBehavior(PistonBehavior.DESTROY), false);
+
+    public static final Block AVOCADO_PIT = register("avocado_pit", settings -> new SaplingBlock(CDWorldGenerators.AVOCADO_PIT_GENERATOR, settings), AbstractBlock.Settings.copy(Blocks.OAK_SAPLING), true);
+
+    public static final Block AVOCADO_CRATE = register("avocado_crate", Block::new, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), true);
+    public static final Block CUCUMBER_CRATE = register("cucumber_crate", Block::new, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), true);
+    public static final Block PICKLE_CRATE = register("pickle_crate", Block::new, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), true);
+    public static final Block CORN_COB_CRATE = register("corn_cob_crate", Block::new, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), true);
+    public static final Block EGGPLANT_CRATE = register("eggplant_crate", Block::new, AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), true);
+
+
+    public static final Block EXOTIC_ROLL_MEDLEY = register("exotic_roll_medley", settings -> new ExoticRollMedleyBlock(CDObjects.TROPICAL_ROLL, true, settings), AbstractBlock.Settings.copy(Blocks.CAKE), true);
+
+    public static final Item CUCUMBER_SEEDS = register("cucumber_seeds", setting -> new BlockItem(CUCUMBER_CROP, setting), new Item.Settings());
+    public static final Item CORN_KERNELS = register("corn_kernels", setting -> new BlockItem(CORN_CROP, setting), new Item.Settings());
+    public static final Item EGGPLANT_SEEDS = register("eggplant_seeds", setting -> new BlockItem(EGGPLANT_CROP, setting), new Item.Settings());
+
 
     private static Item.Settings settings() {
         return new Item.Settings();
     }
 
-    private static <T extends Item> T register(String name, T item) {
-        ITEMS.put(item, Constants.id(name));
+
+    public static Item register(String name, Function<Item.Settings, Item> itemFactory, Item.Settings settings) {
+        RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(CulturalDelights.MOD_ID, name));
+
+        Item item = itemFactory.apply(settings.registryKey(itemKey));
+
+        Registry.register(Registries.ITEM, itemKey, item);
+
         return item;
     }
 
-    private static <T extends Block> T register(String name, T block, Item.Settings settings, boolean createItem) {
-        BLOCKS.put(block, Constants.id(name));
-        if (createItem) {
-            ITEMS.put(new BlockItem(block, settings), BLOCKS.get(block));
+    private static Block register(String name, Function<AbstractBlock.Settings, Block> blockFactory, AbstractBlock.Settings settings, boolean shouldRegisterItem) {
+        RegistryKey<Block> blockKey = keyOfBlock(name);
+        Block block = blockFactory.apply(settings.registryKey(blockKey));
+
+        if (shouldRegisterItem) {
+            RegistryKey<Item> itemKey = keyOfItem(name);
+
+            BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(itemKey));
+            Registry.register(Registries.ITEM, itemKey, blockItem);
         }
-        return block;
+
+        return Registry.register(Registries.BLOCK, blockKey, block);
     }
+
+    private static RegistryKey<Block> keyOfBlock(String name) {
+        return RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(CulturalDelights.MOD_ID, name));
+    }
+
+    private static RegistryKey<Item> keyOfItem(String name) {
+        return RegistryKey.of(RegistryKeys.ITEM, Identifier.of(CulturalDelights.MOD_ID, name));
+    }
+
+
+    public static final ItemGroup ITEM_GROUP = Registry.register(Registries.ITEM_GROUP,
+            Identifier.tryParse(CulturalDelights.MOD_ID + ":" + "item_group"),
+            FabricItemGroup.builder()
+                    .displayName(Text.translatable("itemGroup.culturaldelights"))
+                    .icon(() -> new ItemStack(PICKLE))
+                    .entries((displayContext, entries) -> {
+
+                        entries.add(AVOCADO);
+                        entries.add(CUT_AVOCADO);
+                        entries.add(CUCUMBER);
+                        entries.add(PICKLE);
+                        entries.add(CUT_CUCUMBER);
+                        entries.add(CUT_PICKLE);
+                        entries.add(EGGPLANT);
+                        entries.add(CUT_EGGPLANT);
+                        entries.add(SMOKED_EGGPLANT);
+                        entries.add(SMOKED_TOMATO);
+                        entries.add(SMOKED_CORN);
+                        entries.add(SMOKED_CUT_EGGPLANT);
+                        entries.add(SMOKED_WHITE_EGGPLANT);
+                        entries.add(CORN_COB);
+                        entries.add(SQUID);
+                        entries.add(GLOW_SQUID);
+                        entries.add(RAW_CALAMARI);
+                        entries.add(COOKED_CALAMARI);
+                        entries.add(POPCORN);
+                        entries.add(CORN_DOUGH);
+                        entries.add(TORTILLA);
+                        entries.add(TORTILLA_CHIPS);
+                        entries.add(ELOTE);
+                        entries.add(HEARTY_SALAD);
+                        entries.add(BEEF_BURRITO);
+                        entries.add(MUTTON_SANDWICH);
+                        entries.add(FRIED_EGGPLANT_PASTA);
+                        entries.add(EGGPLANT_BURGER);
+                        entries.add(AVOCADO_TOAST);
+                        entries.add(CREAMED_CORN);
+                        entries.add(CHICKEN_TACO);
+                        entries.add(SPICY_CURRY);
+                        entries.add(PORK_WRAP);
+                        entries.add(FISH_TACO);
+                        entries.add(MIDORI_ROLL);
+                        entries.add(MIDORI_ROLL_SLICE);
+                        entries.add(EGG_ROLL);
+                        entries.add(CHICKEN_ROLL);
+                        entries.add(CHICKEN_ROLL_SLICE);
+                        entries.add(PUFFERFISH_ROLL);
+                        entries.add(TROPICAL_ROLL);
+                        entries.add(RICE_BALL);
+                        entries.add(CALAMARI_ROLL);
+
+                        entries.add(AVOCADO_BUNDLE.asItem());
+                        entries.add(WILD_CUCUMBERS.asItem());
+                        entries.add(WILD_CORN.asItem());
+                        entries.add(WILD_EGGPLANTS.asItem());
+
+                        entries.add(AVOCADO_LOG.asItem());
+                        entries.add(AVOCADO_WOOD.asItem());
+                        entries.add(AVOCADO_LEAVES);
+                        entries.add(AVOCADO_SAPLING.asItem());
+                        entries.add(AVOCADO_PIT.asItem());
+
+                        entries.add(AVOCADO_CRATE.asItem());
+                        entries.add(CUCUMBER_CRATE.asItem());
+                        entries.add(PICKLE_CRATE.asItem());
+                        entries.add(CORN_COB_CRATE.asItem());
+                        entries.add(EGGPLANT_CRATE.asItem());
+
+                        entries.add(EXOTIC_ROLL_MEDLEY.asItem());
+                        entries.add(CUCUMBER_SEEDS.asItem());
+                        entries.add(CORN_KERNELS.asItem());
+                        entries.add(EGGPLANT_SEEDS.asItem());
+
+
+
+                    })
+                            .build());
+
+
+
+
 
     public static void init() {
         BLOCKS.keySet().forEach(block -> Registry.register(Registries.BLOCK, BLOCKS.get(block), block));
         ITEMS.keySet().forEach(item -> Registry.register(Registries.ITEM, ITEMS.get(item), item));
-        ItemGroupEvents.modifyEntriesEvent(FarmersDelightMod.ITEM_GROUP).register(entries -> ITEMS.keySet().forEach(entries::add));
-
 
         FlammableBlockRegistry flammableRegistry = FlammableBlockRegistry.getDefaultInstance();
         flammableRegistry.add(AVOCADO_LEAVES, 30, 60);
@@ -168,4 +263,6 @@ public class CDObjects {
 
         compostRegistry.add(AVOCADO_BUNDLE, 1f);
     }
+
+
 }

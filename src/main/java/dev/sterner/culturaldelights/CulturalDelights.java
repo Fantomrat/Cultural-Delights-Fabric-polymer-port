@@ -1,6 +1,6 @@
 package dev.sterner.culturaldelights;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
 import dev.sterner.culturaldelights.common.registry.CDConfiguredFeatures;
 import dev.sterner.culturaldelights.common.registry.CDWorldGenerators;
@@ -16,12 +16,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.entry.ItemEntry;
+import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
+import net.minecraft.village.TradedItem;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.GenerationStep;
@@ -30,12 +32,12 @@ import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
 
 public class CulturalDelights implements ModInitializer {
 	public static final String MOD_ID = "culturaldelights";
-	private static final Identifier SQUID_LOOT_TABLE_ID = EntityType.SQUID.getLootTableId();
-	private static final Identifier GLOW_SQUID_LOOT_TABLE_ID = EntityType.GLOW_SQUID.getLootTableId();
+	private static final Identifier SQUID_LOOT_TABLE_ID = EntityType.SQUID.getLootTableKey().get().getValue();
+	private static final Identifier GLOW_SQUID_LOOT_TABLE_ID = EntityType.GLOW_SQUID.getLootTableKey().get().getValue();
 
 	public static final TreeDecoratorType<AvocadoBundleTreeDecorator> AVOCADO_BUNDLE_TREE_DECORATOR_TYPE = register(Constants.id("avocado_bundle"), AvocadoBundleTreeDecorator.CODEC);
 
-	private static <P extends TreeDecorator> TreeDecoratorType<P> register(Identifier id, Codec<P> codec) {
+	private static <P extends TreeDecorator> TreeDecoratorType<P> register(Identifier id, MapCodec<P> codec) {
 		return Registry.register(Registries.TREE_DECORATOR_TYPE, id, new TreeDecoratorType<>(codec));
 	}
 
@@ -62,16 +64,21 @@ public class CulturalDelights implements ModInitializer {
 			factories.add(new EmeraldToItemOffer(new ItemStack(CDObjects.AVOCADO), 1, 10, 2, 0.2F));
 		});
 
-		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-			if(source.isBuiltin() && SQUID_LOOT_TABLE_ID.equals(id)){
-				LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(CDObjects.SQUID));
-				tableBuilder.pool(poolBuilder);
-			}
-			if(source.isBuiltin() && GLOW_SQUID_LOOT_TABLE_ID.equals(id)){
-				LootPool.Builder poolBuilder = LootPool.builder().with(ItemEntry.builder(CDObjects.GLOW_SQUID));
-				tableBuilder.pool(poolBuilder);
-			}
-		});
+
+		LootTableEvents.MODIFY.register(((registryKey, builder, source) -> {
+			if (source.isBuiltin()) {
+                Identifier id = registryKey.getValue();
+                if (SQUID_LOOT_TABLE_ID.equals(id)) {
+                    LootPool.Builder poolBuilder = LootPool.builder().rolls(ConstantLootNumberProvider.create(1)).with(ItemEntry.builder(CDObjects.SQUID));
+                    builder.pool(poolBuilder);
+                }
+                if (GLOW_SQUID_LOOT_TABLE_ID.equals(id)) {
+                    LootPool.Builder poolBuilder = LootPool.builder().rolls(ConstantLootNumberProvider.create(1)).with(ItemEntry.builder(CDObjects.GLOW_SQUID));
+                    builder.pool(poolBuilder);
+                }
+            }
+		}));
+
 	}
 
 	public static class EmeraldToItemOffer implements TradeOffers.Factory {
@@ -91,7 +98,7 @@ public class CulturalDelights implements ModInitializer {
 		}
 
 		public TradeOffer create(Entity entity, Random random) {
-			return new TradeOffer(new ItemStack(Items.EMERALD, this.price + random.nextInt(3)), sell, this.maxUses, this.experience, this.multiplier);
+			return new TradeOffer(new TradedItem(Items.EMERALD, this.price + random.nextInt(3)), sell, this.maxUses, this.experience, this.multiplier);
 		}
 	}
 }

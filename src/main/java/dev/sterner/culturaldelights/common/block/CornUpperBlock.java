@@ -1,21 +1,26 @@
 package dev.sterner.culturaldelights.common.block;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CropBlock;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.ItemConvertible;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
-public class CornUpperBlock extends CropBlock {
+public class CornUpperBlock extends PlantBlock implements Fertilizable {
     public static final IntProperty CORN_AGE;
     private static final VoxelShape[] SHAPE_BY_AGE;
 
@@ -28,15 +33,34 @@ public class CornUpperBlock extends CropBlock {
     }
 
     @Override
+    protected MapCodec<? extends CornUpperBlock> getCodec() {
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Codec.INT.fieldOf("age").forGetter(block -> 0)
+        ).apply(instance, ignored -> new CornUpperBlock(AbstractBlock.Settings.create().mapColor((state) -> (Integer)state.get(CornUpperBlock.CORN_AGE) >= 2 ? MapColor.YELLOW : MapColor.DARK_GREEN).noCollision().ticksRandomly().breakInstantly().sounds(BlockSoundGroup.CROP).pistonBehavior(PistonBehavior.DESTROY))));
+    }
+
+    @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return SHAPE_BY_AGE[state.get(this.getAgeProperty())];
+    }
+
+    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
+        return !this.isMature(state);
+    }
+
+    public final boolean isMature(BlockState state) {
+        return this.getAge(state) >= this.getMaxAge();
+    }
+
+    public int getAge(BlockState state) {
+        return (Integer)state.get(this.getAgeProperty());
     }
 
     public int getMaxAge() {
         return 3;
     }
 
-    @Override
+
     protected ItemConvertible getSeedsItem() {
         return CDObjects.CORN_KERNELS;
     }
@@ -51,9 +75,25 @@ public class CornUpperBlock extends CropBlock {
         return floor.getBlock() == CDObjects.CORN_CROP;
     }
 
+    public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
+        return true;
+    }
 
-    protected int getGrowthAmount(World worldIn) {
-        return super.getGrowthAmount(worldIn) / 3;
+    public void grow(ServerWorld world, Random random, BlockPos pos, BlockState state) {
+        this.applyGrowth(world, pos, state);
+    }
+
+    public void applyGrowth(World world, BlockPos pos, BlockState state) {
+        int i = Math.min(this.getMaxAge(), this.getAge(state) + this.getGrowthAmount(world));
+        world.setBlockState(pos, this.withAge(i), 2);
+    }
+
+    public BlockState withAge(int age) {
+        return (BlockState)this.getDefaultState().with(this.getAgeProperty(), age);
+    }
+
+    protected int getGrowthAmount(World world) {
+        return MathHelper.nextInt(world.random, 2, 5);
     }
 
     @Override

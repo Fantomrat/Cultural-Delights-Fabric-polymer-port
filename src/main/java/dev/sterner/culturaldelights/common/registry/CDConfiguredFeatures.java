@@ -18,7 +18,7 @@ public enum CDConfiguredFeatures {
     private RegistryKey<PlacedFeature> featureRegistryKey;
 
     CDConfiguredFeatures(String featurePathName) {
-        this.featureIdentifier = new Identifier(CulturalDelights.MOD_ID, featurePathName);
+        this.featureIdentifier = Identifier.of(CulturalDelights.MOD_ID, featurePathName);
     }
 
     public static void registerAll() {

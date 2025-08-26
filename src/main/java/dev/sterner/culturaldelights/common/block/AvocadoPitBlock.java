@@ -1,10 +1,9 @@
 package dev.sterner.culturaldelights.common.block;
 
 import net.minecraft.block.*;
-import net.minecraft.block.sapling.SaplingGenerator;
+import net.minecraft.block.SaplingGenerator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 
 public class AvocadoPitBlock extends SaplingBlock {
