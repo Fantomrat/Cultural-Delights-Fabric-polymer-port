@@ -20,9 +20,6 @@
   "entrypoints": {
     "main": [
       "dev.sterner.culturaldelights.CulturalDelights"
-    ],
-    "client": [
-      "dev.sterner.culturaldelights.CulturalDelightsClient"
     ]
   },
   "mixins": [

@@ -3,31 +3,45 @@ package dev.sterner.culturaldelights.common.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.sterner.culturaldelights.CulturalDelights;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
+import dev.sterner.culturaldelights.common.utils.TransparentPlant;
+import eu.pb4.factorytools.api.block.FactoryBlock;
+import eu.pb4.factorytools.api.virtualentity.BlockModel;
+import eu.pb4.factorytools.api.virtualentity.ItemDisplayElementUtil;
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
+import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.tick.ScheduledTickView;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+import xyz.nucleoid.packettweaker.PacketContext;
+
+import java.util.ArrayList;
 
 import static vectorwing.farmersdelight.common.registry.ModBlocks.RICH_SOIL_FARMLAND;
 
-public class CornBlock extends PlantBlock implements Fertilizable {
+public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock, TransparentPlant {
     public static final IntProperty AGE;
     public static final BooleanProperty SUPPORTING;
-    private static final VoxelShape[] SHAPE_BY_AGE;
     public static final int GROWTH_CHANCE = 10;
 
     public CornBlock(Settings settings) {
@@ -43,7 +57,10 @@ public class CornBlock extends PlantBlock implements Fertilizable {
     }
 
 
-
+    @Override
+    public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
+        return Blocks.WHEAT.getDefaultState();
+    }
 
     @Override
     protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
@@ -70,7 +87,7 @@ public class CornBlock extends PlantBlock implements Fertilizable {
     }
 
     public int getMaxAge() {
-        return 3;
+        return 4;
     }
 
 
@@ -167,12 +184,61 @@ public class CornBlock extends PlantBlock implements Fertilizable {
     }
 
     static {
-        AGE = Properties.AGE_3;
+        AGE = Properties.AGE_4;
         SUPPORTING = BooleanProperty.of("supporting");
-        SHAPE_BY_AGE = new VoxelShape[]{
-                Block.createCuboidShape(3.0D, 0.0D, 3.0D, 13.0D, 8.0D, 13.0D),
-                Block.createCuboidShape(3.0D, 0.0D, 3.0D, 13.0D, 10.0D, 13.0D),
-                Block.createCuboidShape(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D),
-                Block.createCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D)};
+
     }
+
+
+        @Override
+        public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+            return new Model(initialBlockState);
+        }
+
+        public static class Model extends BlockModel {
+            public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
+            static{
+                for (int i = 0; i <= 3; i++){
+                    MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/corn_stage"+i)));
+                }
+                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/corn_supporting")));
+            }
+            public ItemDisplayElement main;
+            public Model(BlockState state){
+                init(state);
+            }
+            public void init(BlockState state){
+                this.main = ItemDisplayElementUtil.createSimple();
+                updateItem(state);
+                this.main.setScale(new Vector3f(1));
+                this.addElement(main);
+            }
+            protected void updateItem(BlockState state) {
+
+                ItemStack model;
+
+                if (!state.get(SUPPORTING)) {
+                    switch (state.get(AGE)) {
+                        case 1 -> model = getModels().get(1);
+                        case 2, 3 -> model = getModels().get(2);
+                        case 4 -> model = getModels().get(3);
+                        default -> model = getModels().getFirst();
+                    }
+                } else model = getModels().getLast();
+
+
+                this.main.setItem(model);
+            }
+            @Override
+            public void notifyUpdate(HolderAttachment.UpdateType updateType) {
+                if (updateType == BlockBoundAttachment.BLOCK_STATE_UPDATE){
+                    updateItem(this.blockState());
+                    this.tick();
+                }
+                super.notifyUpdate(updateType);
+            }
+            public ArrayList<ItemStack> getModels (){
+                return MODELS;
+            }
+        }
 }

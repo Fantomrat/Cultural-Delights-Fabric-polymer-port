@@ -20,7 +20,7 @@ loom {
 repositories {
     maven { url 'https://maven.nucleoid.xyz' }
     maven { url 'https://api.modrinth.com/maven'}
-
+    maven { url 'https://maven.nucleoid.xyz' }
 
 }
 
@@ -35,6 +35,14 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "maven.modrinth:farmers-delight-refabricated:${project.delight_version}"
 
+    modImplementation "eu.pb4:polymer-core:${project.polymer_version}"
+    modImplementation "eu.pb4:polymer-blocks:${project.polymer_version}"
+    modImplementation "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+    modImplementation "eu.pb4:polymer-resource-pack-extras:${project.polymer_version}"
+    modImplementation "eu.pb4:polymer-autohost:${project.polymer_version}"
+    modImplementation "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
+
+    modImplementation include('eu.pb4:factorytools:0.7.0+1.21.6')
 }
 
 

@@ -3,26 +3,41 @@ package dev.sterner.culturaldelights.common.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.sterner.culturaldelights.CulturalDelights;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
+import dev.sterner.culturaldelights.common.utils.TransparentPlant;
+import eu.pb4.factorytools.api.block.FactoryBlock;
+import eu.pb4.factorytools.api.virtualentity.BlockModel;
+import eu.pb4.factorytools.api.virtualentity.ItemDisplayElementUtil;
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
+import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.ItemConvertible;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+import xyz.nucleoid.packettweaker.PacketContext;
 
-public class CornUpperBlock extends PlantBlock implements Fertilizable {
+import java.util.ArrayList;
+
+public class CornUpperBlock extends PlantBlock implements Fertilizable, FactoryBlock, TransparentPlant {
     public static final IntProperty CORN_AGE;
-    private static final VoxelShape[] SHAPE_BY_AGE;
+    public static final int GROWTH_CHANCE = 10;
 
     public CornUpperBlock(Settings settings) {
         super(settings);
@@ -40,9 +55,10 @@ public class CornUpperBlock extends PlantBlock implements Fertilizable {
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return SHAPE_BY_AGE[state.get(this.getAgeProperty())];
+    public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
+        return Blocks.WHEAT.getDefaultState();
     }
+
 
     public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
         return !this.isMature(state);
@@ -83,6 +99,34 @@ public class CornUpperBlock extends PlantBlock implements Fertilizable {
         this.applyGrowth(world, pos, state);
     }
 
+
+    @Override
+    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+        super.randomTick(state, worldIn, pos, rand);
+
+        if (!worldIn.isRegionLoaded(pos.add(-1, -1, -1), pos.add(1, 1, 1))) {
+            return;
+        }
+
+        if (worldIn.getLightLevel(pos.up(), 0) >= 6 && this.getAge(state) <= this.getMaxAge() && rand.nextInt(3) == 0) {
+            randomGrowTick(state, worldIn, pos, rand);
+        }
+    }
+
+    private void randomGrowTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+        int currentAge = this.getAge(state);
+        if (currentAge <= this.getMaxAge() && rand.nextInt((int) (25.0F / GROWTH_CHANCE) + 1) == 0) {
+            if (currentAge == this.getMaxAge()) {
+                CornUpperBlock cornUpper = (CornUpperBlock) CDObjects.CORN_UPPER;
+                if (cornUpper.getDefaultState().canPlaceAt(worldIn, pos.up()) && worldIn.isAir(pos.up())) {
+                    worldIn.setBlockState(pos.up(), cornUpper.getDefaultState());
+                }
+            } else {
+                worldIn.setBlockState(pos, state.with(CORN_AGE, this.getAge(state)+1));
+            }
+        }
+    }
+
     public void applyGrowth(World world, BlockPos pos, BlockState state) {
         int i = Math.min(this.getMaxAge(), this.getAge(state) + this.getGrowthAmount(world));
         world.setBlockState(pos, this.withAge(i), 2);
@@ -102,10 +146,50 @@ public class CornUpperBlock extends PlantBlock implements Fertilizable {
     }
 
     static {
-        CORN_AGE = Properties.AGE_3;
-        SHAPE_BY_AGE = new VoxelShape[]{Block.createCuboidShape(3.0D, 0.0D, 3.0D, 13.0D, 8.0D, 13.0D),
-                Block.createCuboidShape(3.0D, 0.0D, 3.0D, 13.0D, 10.0D, 13.0D),
-                Block.createCuboidShape(2.0D, 0.0D, 2.0D, 14.0D, 12.0D, 14.0D),
-                Block.createCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D)};
+        CORN_AGE = Properties.AGE_4;
     }
-}
+
+        @Override
+        public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+            return new Model(initialBlockState);
+        }
+
+        public static class Model extends BlockModel {
+            public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
+            static{
+                for (int i = 0; i <= 3; i++){
+                    MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/corn_upper_stage"+i)));
+                }
+            }
+            public ItemDisplayElement main;
+            public Model(BlockState state){
+                init(state);
+            }
+            public void init(BlockState state){
+                this.main = ItemDisplayElementUtil.createSimple();
+                updateItem(state);
+                this.main.setScale(new Vector3f(1));
+                this.addElement(main);
+            }
+            protected void updateItem(BlockState state) {
+                this.main.setItem(switch (state.get(CORN_AGE)) {
+                    case 1 -> getModels().get(1);
+                    case 2 -> getModels().get(2);
+                    case 3 -> getModels().get(3);
+                    default -> getModels().getFirst();
+                });
+            }
+            @Override
+            public void notifyUpdate(HolderAttachment.UpdateType updateType) {
+                if (updateType == BlockBoundAttachment.BLOCK_STATE_UPDATE){
+                    updateItem(this.blockState());
+                    this.tick();
+                }
+                super.notifyUpdate(updateType);
+            }
+            public ArrayList<ItemStack> getModels (){
+                return MODELS;
+            }
+        }
+    }
+

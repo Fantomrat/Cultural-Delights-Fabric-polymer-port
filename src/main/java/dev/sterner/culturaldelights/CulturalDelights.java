@@ -1,11 +1,14 @@
 package dev.sterner.culturaldelights;
 
 import com.mojang.serialization.MapCodec;
-import dev.sterner.culturaldelights.common.registry.CDObjects;
+import dev.sterner.culturaldelights.common.block.*;
 import dev.sterner.culturaldelights.common.registry.CDConfiguredFeatures;
+import dev.sterner.culturaldelights.common.registry.CDObjects;
 import dev.sterner.culturaldelights.common.registry.CDWorldGenerators;
 import dev.sterner.culturaldelights.common.utils.Constants;
 import dev.sterner.culturaldelights.common.world.AvocadoBundleTreeDecorator;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import eu.pb4.polymer.resourcepack.extras.api.ResourcePackExtras;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
@@ -29,6 +32,8 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.treedecorator.TreeDecorator;
 import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+
+import static com.mojang.text2speech.Narrator.LOGGER;
 
 public class CulturalDelights implements ModInitializer {
 	public static final String MOD_ID = "culturaldelights";
@@ -79,6 +84,16 @@ public class CulturalDelights implements ModInitializer {
             }
 		}));
 
+        if (PolymerResourcePackUtils.addModAssets(MOD_ID)) {
+            ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.of(MOD_ID, "block"), Identifier.of(MOD_ID, "item"));
+            LOGGER.info("Successfully added mod assets for " + MOD_ID);
+        } else {
+            LOGGER.error("Failed to add mod assets for " + MOD_ID);
+        }
+        initModels();
+        PolymerResourcePackUtils.markAsRequired();
+
+
 	}
 
 	public static class EmeraldToItemOffer implements TradeOffers.Factory {
@@ -100,5 +115,20 @@ public class CulturalDelights implements ModInitializer {
 		public TradeOffer create(Entity entity, Random random) {
 			return new TradeOffer(new TradedItem(Items.EMERALD, this.price + random.nextInt(3)), sell, this.maxUses, this.experience, this.multiplier);
 		}
+
 	}
+
+    public void initModels(){
+        CornBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        CornUpperBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        CucumbersBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        EggplantBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        ExoticRollMedleyBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        AvocadoPitBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        PolymerSaplingBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        PolymerWildCucumberBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        PolymerWildCornBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+        PolymerWildEggPlantsBlock.Model.MODELS.forEach(ItemStack::isEmpty);
+    }
+
 }
