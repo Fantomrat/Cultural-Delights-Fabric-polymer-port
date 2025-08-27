@@ -2,7 +2,7 @@ package dev.sterner.culturaldelights.common.registry;
 
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
-import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBiomeTags;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBiomeTags;
 import net.minecraft.block.SaplingGenerator;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -23,7 +23,7 @@ public class CDWorldGenerators {
     public static final RegistryKey<PlacedFeature> TREE_AVOCADO_PIT = RegistryKey.of(RegistryKeys.PLACED_FEATURE, Identifier.of(MOD_ID, "tree_avocado_pit"));
 
     public static void init() {
-        BiomeModifications.addFeature(BiomeSelectors.tag(ConventionalBiomeTags.JUNGLE), GenerationStep.Feature.VEGETAL_DECORATION, TREE_AVOCADO);
+        BiomeModifications.addFeature(BiomeSelectors.tag(ConventionalBiomeTags.IS_JUNGLE), GenerationStep.Feature.VEGETAL_DECORATION, TREE_AVOCADO);
     }
 
     public static final SaplingGenerator AVOCADO_SAPLING_GENERATOR = new SaplingGenerator(
