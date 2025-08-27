@@ -32,11 +32,14 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.treedecorator.TreeDecorator;
 import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+
 
 public class CulturalDelights implements ModInitializer {
 	public static final String MOD_ID = "culturaldelights";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	private static final Identifier SQUID_LOOT_TABLE_ID = EntityType.SQUID.getLootTableKey().get().getValue();
 	private static final Identifier GLOW_SQUID_LOOT_TABLE_ID = EntityType.GLOW_SQUID.getLootTableKey().get().getValue();
 
