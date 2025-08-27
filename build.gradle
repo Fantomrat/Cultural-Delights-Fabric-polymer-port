@@ -11,10 +11,7 @@ base {
 }
 
 loom {
-    remapJar {
-        addNestedDependencies = true
-        nestedJars.from configurations.modImplementation
-    }
+
 }
 
 repositories {
