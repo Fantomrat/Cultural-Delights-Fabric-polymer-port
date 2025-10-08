@@ -18,6 +18,9 @@
 
   "environment": "*",
   "entrypoints": {
+    "fabric-datagen": [
+      "dev.sterner.culturaldelights.datagen.DataGenerator"
+    ],
     "main": [
       "dev.sterner.culturaldelights.CulturalDelights"
     ]

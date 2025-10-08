@@ -1,5 +1,5 @@
 {
-  "itemGroup.culturaldelights": "Кулинарные Угощения",
+  "itemGroup.culturaldelights": "Cultural Delights",
 
   "item.culturaldelights.cucumber_seeds": "Семена огурца",
   "item.culturaldelights.eggplant_seeds": "Семена баклажана",
@@ -80,7 +80,7 @@
   "item.culturaldelights.cucumbers": "Огурцы",
   "item.culturaldelights.eggplants": "Баклажаны",
   "item.culturaldelights.avocado_bundle": "Связка авокадо",
-  "item.culturaldelights.wild_cucumbers": "Дикие огурец",
+  "item.culturaldelights.wild_cucumbers": "Дикий огурец",
   "item.culturaldelights.wild_corn": "Дикая кукуруза",
   "item.culturaldelights.wild_eggplants": "Дикий баклажан",
   "item.culturaldelights.avocado_log": "Бревно авокадо",
