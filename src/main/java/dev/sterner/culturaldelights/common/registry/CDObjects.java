@@ -6,6 +6,7 @@ import eu.pb4.polymer.core.api.item.PolymerItemGroupUtils;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.fabricmc.fabric.api.registry.CompostingChanceRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -267,6 +268,9 @@ public class CDObjects {
         compostRegistry.add(POPCORN, 0.85f);
 
         compostRegistry.add(AVOCADO_BUNDLE, 1f);
+
+        StrippableBlockRegistry.register(AVOCADO_LOG, Blocks.STRIPPED_JUNGLE_LOG);
+        StrippableBlockRegistry.register(AVOCADO_WOOD, Blocks.STRIPPED_JUNGLE_WOOD);
 
         RegisterItemGroup();
     }
