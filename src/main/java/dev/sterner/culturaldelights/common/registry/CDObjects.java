@@ -149,9 +149,7 @@ public class CDObjects {
     }
 
     public static void RegisterItemGroup() {
-            ItemGroup ITEM_GROUP = Registry.register(Registries.ITEM_GROUP,
-                Identifier.tryParse(CulturalDelights.MOD_ID + ":" + "item_group"),
-                PolymerItemGroupUtils.builder()
+            ItemGroup ITEM_GROUP = PolymerItemGroupUtils.builder()
                         .displayName(Text.translatable("itemGroup.culturaldelights"))
                         .icon(() -> new ItemStack(PICKLE))
                         .entries((displayContext, entries) -> {
@@ -227,10 +225,11 @@ public class CDObjects {
 
 
                         })
-                        .build());
+                        .build();
 
 
-        PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.of(CulturalDelights.MOD_ID, "items"), ITEM_GROUP);
+
+        PolymerItemGroupUtils.registerPolymerItemGroup(Identifier.of(CulturalDelights.MOD_ID, "item_group"), ITEM_GROUP);
     }
 
 
