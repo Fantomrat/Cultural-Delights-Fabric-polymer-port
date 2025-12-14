@@ -15,16 +15,18 @@ jobs:
       - name: Set Minecraft versions and loaders
         id: mcinfo
         run: |
-          if [ "${GITHUB_REF_NAME}" = "1.21.8-polymer" ]; then
+          if [ "${СС_TARGET_COMMITISH}" = "1.21.8-polymer" ]; then
             echo "MC_VERSIONS=1.21.6,1.21.7,1.21.8" >> $GITHUB_ENV
             echo "LOADERS=fabric" >> $GITHUB_ENV
-          elif [ "${GITHUB_REF_NAME}" = "1.21.9-polymer" ]; then
+          elif [ "${СС_TARGET_COMMITISH}" = "1.21.9-polymer" ]; then
             echo "MC_VERSIONS=1.21.9,1.21.10,1.21.11" >> $GITHUB_ENV
             echo "LOADERS=fabric,quilt" >> $GITHUB_ENV
           else
-            echo "Branch ${GITHUB_REF_NAME} is not allowed for release"
+            echo "Branch ${СС_TARGET_COMMITISH} is not allowed for release"
             exit 1
           fi
+        env:
+          СС_TARGET_COMMITISH: ${{ github.event.release.target_commitish }}
 
       - name: Setup JDK 21
         uses: actions/setup-java@v4
