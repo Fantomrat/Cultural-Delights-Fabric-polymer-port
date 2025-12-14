@@ -51,6 +51,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Find built jar
+        id: jar
+        run: echo "JAR=$(ls build/libs/*.jar)" >> $GITHUB_ENV
+
       - name: Publish to Modrinth
         uses: cloudnode-pro/modrinth-publish@v2
         with:
@@ -63,5 +67,5 @@ jobs:
             ${{ env.LOADERS }}
           game-versions: |-
             ${{ env.MC_VERSIONS }}
-          files: build/libs/*.jar
+          files: ${{ env.JAR }}
           
