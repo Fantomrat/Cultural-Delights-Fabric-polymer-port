@@ -20,7 +20,7 @@ jobs:
             echo "LOADERS=fabric" >> $GITHUB_ENV
           elif [ "${CC_TARGET_COMMITISH}" = "1.21.9-polymer" ]; then
             echo "MC_VERSIONS=1.21.9,1.21.10,1.21.11" >> $GITHUB_ENV
-            echo "LOADERS=fabric,quilt" >> $GITHUB_ENV
+            echo "LOADERS=fabric" >> $GITHUB_ENV
           else
             echo "Branch ${CC_TARGET_COMMITISH} is not allowed for release"
             exit 1
