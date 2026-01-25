@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.tag.convention.v2.ConventionalBiomeTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.gen.feature.*;
+import net.minecraft.world.level.levelgen.feature.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
