@@ -1,12 +1,12 @@
 package dev.sterner.culturaldelights.common.registry;
 
 import dev.sterner.culturaldelights.CulturalDelights;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.FeatureConfig;
-import net.minecraft.world.gen.feature.PlacedFeature;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public enum CDConfiguredFeatures {
     PATCH_WILD_CORN("patch_wild_corn"),
@@ -14,25 +14,25 @@ public enum CDConfiguredFeatures {
     PATCH_WILD_EGGPLANTS("patch_wild_eggplants");
 
     private final Identifier featureIdentifier;
-    private RegistryKey<ConfiguredFeature<?, ?>> configuredFeatureRegistryKey;
-    private RegistryKey<PlacedFeature> featureRegistryKey;
+    private ResourceKey<ConfiguredFeature<?, ?>> configuredFeatureRegistryKey;
+    private ResourceKey<PlacedFeature> featureRegistryKey;
 
     CDConfiguredFeatures(String featurePathName) {
-        this.featureIdentifier = Identifier.of(CulturalDelights.MOD_ID, featurePathName);
+        this.featureIdentifier = Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, featurePathName);
     }
 
     public static void registerAll() {
         for (CDConfiguredFeatures value : values()) {
-            value.configuredFeatureRegistryKey = RegistryKey.of(RegistryKeys.CONFIGURED_FEATURE, value.featureIdentifier);
-            value.featureRegistryKey = RegistryKey.of(RegistryKeys.PLACED_FEATURE, value.featureIdentifier);
+            value.configuredFeatureRegistryKey = ResourceKey.create(Registries.CONFIGURED_FEATURE, value.featureIdentifier);
+            value.featureRegistryKey = ResourceKey.create(Registries.PLACED_FEATURE, value.featureIdentifier);
         }
     }
 
-    public RegistryKey<ConfiguredFeature<? extends FeatureConfig, ?>> configKey() {
+    public ResourceKey<ConfiguredFeature<? extends FeatureConfiguration, ?>> configKey() {
         return configuredFeatureRegistryKey;
     }
 
-    public RegistryKey<PlacedFeature> key() {
+    public ResourceKey<PlacedFeature> key() {
         return featureRegistryKey;
     }
 

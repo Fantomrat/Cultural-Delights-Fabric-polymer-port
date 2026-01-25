@@ -5,16 +5,16 @@ import eu.pb4.polymer.blocks.api.BlockModelType;
 import eu.pb4.polymer.blocks.api.PolymerBlockModel;
 import eu.pb4.polymer.blocks.api.PolymerBlockResourceUtils;
 import eu.pb4.polymer.blocks.api.PolymerTexturedBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xyz.nucleoid.packettweaker.PacketContext;
 
 public class PolymerBlock extends Block implements PolymerTexturedBlock {
         private final BlockState model;
-        public PolymerBlock(Settings settings, String path) {
+        public PolymerBlock(Properties settings, String path) {
             super(settings);
-            model = PolymerBlockResourceUtils.requestBlock(BlockModelType.FULL_BLOCK, PolymerBlockModel.of(Identifier.of(CulturalDelights.MOD_ID, "block/"+path)));
+            model = PolymerBlockResourceUtils.requestBlock(BlockModelType.FULL_BLOCK, PolymerBlockModel.of(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/"+path)));
         }
 
         @Override

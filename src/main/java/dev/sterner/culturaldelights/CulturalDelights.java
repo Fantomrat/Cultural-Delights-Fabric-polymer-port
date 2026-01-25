@@ -13,25 +13,27 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.provider.number.ConstantLootNumberProvider;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOffers;
-import net.minecraft.village.TradedItem;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.treedecorator.TreeDecorator;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,13 +42,13 @@ import org.slf4j.LoggerFactory;
 public class CulturalDelights implements ModInitializer {
 	public static final String MOD_ID = "culturaldelights";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	private static final Identifier SQUID_LOOT_TABLE_ID = EntityType.SQUID.getLootTableKey().get().getValue();
-	private static final Identifier GLOW_SQUID_LOOT_TABLE_ID = EntityType.GLOW_SQUID.getLootTableKey().get().getValue();
+	private static final Identifier SQUID_LOOT_TABLE_ID = EntityType.SQUID.getDefaultLootTable().get().identifier();
+	private static final Identifier GLOW_SQUID_LOOT_TABLE_ID = EntityType.GLOW_SQUID.getDefaultLootTable().get().identifier();
 
 	public static final TreeDecoratorType<AvocadoBundleTreeDecorator> AVOCADO_BUNDLE_TREE_DECORATOR_TYPE = register(Constants.id("avocado_bundle"), AvocadoBundleTreeDecorator.CODEC);
 
 	private static <P extends TreeDecorator> TreeDecoratorType<P> register(Identifier id, MapCodec<P> codec) {
-		return Registry.register(Registries.TREE_DECORATOR_TYPE, id, new TreeDecoratorType<>(codec));
+		return Registry.register(BuiltInRegistries.TREE_DECORATOR_TYPE, id, new TreeDecoratorType<>(codec));
 	}
 
 	@Override
@@ -56,13 +58,13 @@ public class CulturalDelights implements ModInitializer {
 		CDConfiguredFeatures.registerAll();
 		CDWorldGenerators.init();
 
-		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(BiomeKeys.PLAINS), GenerationStep.Feature.VEGETAL_DECORATION,
+		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(Biomes.PLAINS), GenerationStep.Decoration.VEGETAL_DECORATION,
 				CDConfiguredFeatures.PATCH_WILD_CORN.key());
-		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(BiomeKeys.SWAMP), GenerationStep.Feature.VEGETAL_DECORATION,
+		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(Biomes.SWAMP), GenerationStep.Decoration.VEGETAL_DECORATION,
 				CDConfiguredFeatures.PATCH_WILD_EGGPLANTS.key());
-		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(BiomeKeys.SWAMP), GenerationStep.Feature.VEGETAL_DECORATION,
+		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(Biomes.SWAMP), GenerationStep.Decoration.VEGETAL_DECORATION,
 				CDConfiguredFeatures.PATCH_WILD_CUCUMBERS.key());
-		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(BiomeKeys.JUNGLE), GenerationStep.Feature.VEGETAL_DECORATION,
+		BiomeModifications.addFeature(context -> context.getBiomeKey().equals(Biomes.JUNGLE), GenerationStep.Decoration.VEGETAL_DECORATION,
 				CDConfiguredFeatures.PATCH_WILD_EGGPLANTS.key());
 
 		TradeOfferHelper.registerVillagerOffers(VillagerProfession.FARMER, 1, factories -> {
@@ -75,20 +77,20 @@ public class CulturalDelights implements ModInitializer {
 
 		LootTableEvents.MODIFY.register(((registryKey, builder, source) -> {
 			if (source.isBuiltin()) {
-                Identifier id = registryKey.getValue();
+                Identifier id = registryKey.identifier();
                 if (SQUID_LOOT_TABLE_ID.equals(id)) {
-                    LootPool.Builder poolBuilder = LootPool.builder().rolls(ConstantLootNumberProvider.create(1)).with(ItemEntry.builder(CDObjects.SQUID));
-                    builder.pool(poolBuilder);
+                    LootPool.Builder poolBuilder = LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(LootItem.lootTableItem(CDObjects.SQUID));
+                    builder.withPool(poolBuilder);
                 }
                 if (GLOW_SQUID_LOOT_TABLE_ID.equals(id)) {
-                    LootPool.Builder poolBuilder = LootPool.builder().rolls(ConstantLootNumberProvider.create(1)).with(ItemEntry.builder(CDObjects.GLOW_SQUID));
-                    builder.pool(poolBuilder);
+                    LootPool.Builder poolBuilder = LootPool.lootPool().setRolls(ConstantValue.exactly(1)).add(LootItem.lootTableItem(CDObjects.GLOW_SQUID));
+                    builder.withPool(poolBuilder);
                 }
             }
 		}));
 
         if (PolymerResourcePackUtils.addModAssets(MOD_ID)) {
-            ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.of(MOD_ID, "block"), Identifier.of(MOD_ID, "item"));
+            ResourcePackExtras.forDefault().addBridgedModelsFolder(Identifier.fromNamespaceAndPath(MOD_ID, "block"), Identifier.fromNamespaceAndPath(MOD_ID, "item"));
             LOGGER.info("Successfully added mod assets for " + MOD_ID);
         } else {
             LOGGER.error("Failed to add mod assets for " + MOD_ID);
@@ -99,7 +101,7 @@ public class CulturalDelights implements ModInitializer {
 
 	}
 
-	public static class EmeraldToItemOffer implements TradeOffers.Factory {
+	public static class EmeraldToItemOffer implements VillagerTrades.ItemListing {
 
 		private final ItemStack sell;
 		private final int price;
@@ -115,11 +117,11 @@ public class CulturalDelights implements ModInitializer {
 			this.multiplier = multiplier;
 		}
 
-		public TradeOffer create(Entity entity, Random random) {
-			return new TradeOffer(new TradedItem(Items.EMERALD, this.price + random.nextInt(3)), sell, this.maxUses, this.experience, this.multiplier);
+        @Override
+		public MerchantOffer getOffer(ServerLevel serverLevel, Entity entity, RandomSource random) {
+			return new MerchantOffer(new ItemCost(Items.EMERALD, this.price + random.nextInt(3)), sell, this.maxUses, this.experience, this.multiplier);
 		}
-
-	}
+    }
 
     public void initModels(){
         CornBlock.Model.MODELS.forEach(ItemStack::isEmpty);

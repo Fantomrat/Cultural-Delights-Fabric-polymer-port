@@ -4,16 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.sterner.culturaldelights.CulturalDelights;
 import dev.sterner.culturaldelights.common.registry.CDObjects;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.treedecorator.TreeDecorator;
-import net.minecraft.world.gen.treedecorator.TreeDecoratorType;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
+import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 
 public class AvocadoBundleTreeDecorator extends TreeDecorator {
 
@@ -27,24 +26,24 @@ public class AvocadoBundleTreeDecorator extends TreeDecorator {
     }
 
     @Override
-    protected TreeDecoratorType<?> getType() {
+    protected TreeDecoratorType<?> type() {
         return CulturalDelights.AVOCADO_BUNDLE_TREE_DECORATOR_TYPE;
     }
 
     @Override
-    public void generate(Generator generator) {
-        Random random = generator.getRandom();
+    public void place(Context generator) {
+        RandomSource random = generator.random();
         if ((random.nextFloat() < this.probability)) {
-            List<BlockPos> list = generator.getLeavesPositions();
+            List<BlockPos> list = generator.leaves();
             if (!list.isEmpty()) {
-                List<BlockPos> list3 = list.stream().filter((pos) -> generator.isAir(pos.down()) && generator.isAir(pos.down(2)) && generator.isAir(pos.down(3))).collect(Collectors.toList());
+                List<BlockPos> list3 = list.stream().filter((pos) -> generator.isAir(pos.below()) && generator.isAir(pos.below(2)) && generator.isAir(pos.below(3))).collect(Collectors.toList());
                 if (!list3.isEmpty()) {
-                    for(Direction direction : Direction.Type.HORIZONTAL) {
+                    for(Direction direction : Direction.Plane.HORIZONTAL) {
                         if (random.nextFloat() <= 0.25F) {
                             Collections.shuffle(list3);
                             Optional<BlockPos> optional = list3.stream().findFirst();
                             if (optional.isPresent()) {
-                                generator.replace(optional.get().down(), CDObjects.AVOCADO_BUNDLE.getDefaultState());
+                                generator.setBlock(optional.get().below(), CDObjects.AVOCADO_BUNDLE.defaultBlockState());
                             }
                         }
                     }

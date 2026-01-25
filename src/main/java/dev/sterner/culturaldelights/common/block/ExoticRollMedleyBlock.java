@@ -11,16 +11,20 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import vectorwing.farmersdelight.common.block.FeastBlock;
@@ -31,15 +35,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ExoticRollMedleyBlock extends FeastBlock implements TransparentFlatTripWire, FactoryBlock {
-    public static final IntProperty SERVINGS = IntProperty.of("servings", 0, 8);
+    public static final IntegerProperty SERVINGS = IntegerProperty.create("servings", 0, 8);
     public final List<Item> riceRollServings;
 
-    protected static final VoxelShape PLATE_SHAPE = Block.createCuboidShape(1.0, 0.0, 1.0, 15.0, 2.0, 15.0);
+    protected static final VoxelShape PLATE_SHAPE = Block.box(1.0, 0.0, 1.0, 15.0, 2.0, 15.0);
     protected static final VoxelShape FOOD_SHAPE =
-            VoxelShapes.combine(PLATE_SHAPE, Block.createCuboidShape(2.0, 2.0, 2.0, 14.0, 4.0, 14.0),
-                    net.minecraft.util.function.BooleanBiFunction.OR);
+            Shapes.joinUnoptimized(PLATE_SHAPE, Block.box(2.0, 2.0, 2.0, 14.0, 4.0, 14.0),
+                    net.minecraft.world.phys.shapes.BooleanOp.OR);
 
-    public ExoticRollMedleyBlock(Item item, boolean hasLeftovers, Settings settings) {
+    public ExoticRollMedleyBlock(Item item, boolean hasLeftovers, Properties settings) {
         super(settings, () -> item, hasLeftovers);
         this.riceRollServings = Arrays.asList(
                 CDObjects.PUFFERFISH_ROLL,
@@ -54,17 +58,17 @@ public class ExoticRollMedleyBlock extends FeastBlock implements TransparentFlat
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
-        return Blocks.TERRACOTTA.getDefaultState();
+        return Blocks.TERRACOTTA.defaultBlockState();
     }
 
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new Model(initialBlockState);
     }
 
     @Override
-    public IntProperty getServingsProperty() {
+    public IntegerProperty getServingsProperty() {
         return SERVINGS;
     }
 
@@ -75,27 +79,27 @@ public class ExoticRollMedleyBlock extends FeastBlock implements TransparentFlat
 
     @Override
     public ItemStack getServingItem(BlockState state) {
-        return new ItemStack(riceRollServings.get(state.get(getServingsProperty()) - 1));
+        return new ItemStack(riceRollServings.get(state.getValue(getServingsProperty()) - 1));
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return state.get(getServingsProperty()) == 0 ? PLATE_SHAPE : FOOD_SHAPE;
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return state.getValue(getServingsProperty()) == 0 ? PLATE_SHAPE : FOOD_SHAPE;
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, SERVINGS);
     }
 
     public static class Model extends BlockModel {
         public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
-        public static final ItemStack MODELS_LEFTOVER = ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/exotic_roll_medley_block_leftover"));
+        public static final ItemStack MODELS_LEFTOVER = ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/exotic_roll_medley_block_leftover"));
 
         static {
             for (int i = 0; i <= 7; i++) {
-                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/exotic_roll_medley_block")
-                        .withSuffixedPath("_stage" + i)));
+                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/exotic_roll_medley_block")
+                        .withSuffix("_stage" + i)));
             }
         }
 
@@ -112,7 +116,7 @@ public class ExoticRollMedleyBlock extends FeastBlock implements TransparentFlat
             this.addElement(main);
         }
         protected void updateItem(BlockState state) {
-            this.main.setItem(switch (state.get(SERVINGS)) {
+            this.main.setItem(switch (state.getValue(SERVINGS)) {
                 case 1 -> getModels().get(7);
                 case 2 -> getModels().get(6);
                 case 3 -> getModels().get(5);

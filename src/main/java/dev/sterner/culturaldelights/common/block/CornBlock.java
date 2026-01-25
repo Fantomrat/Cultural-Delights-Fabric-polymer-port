@@ -14,23 +14,30 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.VegetationBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -39,51 +46,51 @@ import java.util.ArrayList;
 
 import static vectorwing.farmersdelight.common.registry.ModBlocks.RICH_SOIL_FARMLAND;
 
-public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock, TransparentPlant {
-    public static final IntProperty AGE;
+public class CornBlock extends VegetationBlock implements BonemealableBlock, FactoryBlock, TransparentPlant {
+    public static final IntegerProperty AGE;
     public static final BooleanProperty SUPPORTING;
     public static final int GROWTH_CHANCE = 10;
 
-    public CornBlock(Settings settings) {
+    public CornBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.getDefaultState().with(AGE, 0).with(SUPPORTING, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(AGE, 0).setValue(SUPPORTING, false));
     }
 
     @Override
-    protected MapCodec<? extends CornBlock> getCodec() {
+    protected MapCodec<? extends CornBlock> codec() {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
                 Codec.INT.fieldOf("age").forGetter(block -> 0)
-        ).apply(instance, ignored -> new CornBlock(AbstractBlock.Settings.create().mapColor((state) -> (Integer)state.get(CornBlock.AGE) >= 2 ? MapColor.YELLOW : MapColor.DARK_GREEN).noCollision().ticksRandomly().breakInstantly().sounds(BlockSoundGroup.CROP).pistonBehavior(PistonBehavior.DESTROY))));
+        ).apply(instance, ignored -> new CornBlock(BlockBehaviour.Properties.of().mapColor((state) -> (Integer)state.getValue(CornBlock.AGE) >= 2 ? MapColor.COLOR_YELLOW : MapColor.PLANT).noCollision().randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY))));
     }
 
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
-        return Blocks.WHEAT.getDefaultState();
+        return Blocks.WHEAT.defaultBlockState();
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-        BlockState state1 = super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+    protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        BlockState state1 = super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
         if (!state.isAir()) {
             if (direction == Direction.UP) {
-                return state.with(SUPPORTING, this.isSupportingCornUpper(neighborState));
+                return state.setValue(SUPPORTING, this.isSupportingCornUpper(neighborState));
             }
         }
         return state1;
     }
 
     @Override
-    protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
-        return floor.isOf(Blocks.FARMLAND) || floor.isOf(RICH_SOIL_FARMLAND.get());
+    protected boolean mayPlaceOn(BlockState floor, BlockGetter world, BlockPos pos) {
+        return floor.is(Blocks.FARMLAND) || floor.is(RICH_SOIL_FARMLAND.get());
     }
 
-    public IntProperty getAgeProperty() {
+    public IntegerProperty getAgeProperty() {
         return AGE;
     }
 
     protected int getAge(BlockState state) {
-        return state.get(this.getAgeProperty());
+        return state.getValue(this.getAgeProperty());
     }
 
     public int getMaxAge() {
@@ -92,15 +99,15 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
 
 
     public BlockState withAge(int age) {
-        return this.getDefaultState().with(this.getAgeProperty(), age);
+        return this.defaultBlockState().setValue(this.getAgeProperty(), age);
     }
 
     public boolean isMaxAge(BlockState state) {
-        return (Integer)state.get(this.getAgeProperty()) >= this.getMaxAge();
+        return (Integer)state.getValue(this.getAgeProperty()) >= this.getMaxAge();
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AGE, SUPPORTING);
     }
 
@@ -109,8 +116,8 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
     }
 
     @Override
-    public boolean isFertilizable(WorldView world, BlockPos pos, BlockState state) {
-        BlockState upperState = world.getBlockState(pos.up());
+    public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state) {
+        BlockState upperState = world.getBlockState(pos.above());
         if (upperState.getBlock() instanceof CornUpperBlock) {
             return !((CornUpperBlock)upperState.getBlock()).isMature(upperState);
         } else {
@@ -119,8 +126,8 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
     }
 
     @Override
-    public boolean canGrow(World world, Random random, BlockPos pos, BlockState state) {
-        BlockState upperState = world.getBlockState(pos.up());
+    public boolean isBonemealSuccess(Level world, RandomSource random, BlockPos pos, BlockState state) {
+        BlockState upperState = world.getBlockState(pos.above());
         if (upperState.getBlock() instanceof CornUpperBlock) {
             return !((CornUpperBlock)upperState.getBlock()).isMature(upperState);
         } else {
@@ -128,28 +135,28 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
         }
     }
 
-    protected int getBonemealAgeIncrease(World worldIn) {
-        return MathHelper.nextInt(worldIn.random, 1, 4);
+    protected int getBonemealAgeIncrease(Level worldIn) {
+        return Mth.nextInt(worldIn.random, 1, 4);
     }
 
     @Override
-    public void grow(ServerWorld worldIn, Random rand, BlockPos pos, BlockState state) {
+    public void performBonemeal(ServerLevel worldIn, RandomSource rand, BlockPos pos, BlockState state) {
         int ageGrowth = Math.min(this.getAge(state) + this.getBonemealAgeIncrease(worldIn), 3);
         if (ageGrowth <= this.getMaxAge()) {
-            worldIn.setBlockState(pos, state.with(AGE, ageGrowth));
+            worldIn.setBlockAndUpdate(pos, state.setValue(AGE, ageGrowth));
         } else {
-            BlockState top = worldIn.getBlockState(pos.up());
+            BlockState top = worldIn.getBlockState(pos.above());
             if (top.getBlock() == CDObjects.CORN_UPPER) {
-                Fertilizable growable = (Fertilizable)worldIn.getBlockState(pos.up()).getBlock();
-                if (growable.isFertilizable(worldIn, pos.up(), top)) {
-                    growable.grow(worldIn, worldIn.random, pos.up(), top);
+                BonemealableBlock growable = (BonemealableBlock)worldIn.getBlockState(pos.above()).getBlock();
+                if (growable.isValidBonemealTarget(worldIn, pos.above(), top)) {
+                    growable.performBonemeal(worldIn, worldIn.random, pos.above(), top);
                 }
             } else {
                 CornUpperBlock cornUpper = (CornUpperBlock) CDObjects.CORN_UPPER;
                 int remainingGrowth = ageGrowth - this.getMaxAge() - 1;
-                if (cornUpper.getDefaultState().canPlaceAt(worldIn, pos.up()) && worldIn.isAir(pos.up())) {
-                    worldIn.setBlockState(pos, state.with(AGE, this.getMaxAge()));
-                    worldIn.setBlockState(pos.up(), cornUpper.getDefaultState().with(CornUpperBlock.CORN_AGE, remainingGrowth), 2);
+                if (cornUpper.defaultBlockState().canSurvive(worldIn, pos.above()) && worldIn.isEmptyBlock(pos.above())) {
+                    worldIn.setBlockAndUpdate(pos, state.setValue(AGE, this.getMaxAge()));
+                    worldIn.setBlock(pos.above(), cornUpper.defaultBlockState().setValue(CornUpperBlock.CORN_AGE, remainingGrowth), 2);
                 }
             }
         }
@@ -157,41 +164,41 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+    public void randomTick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource rand) {
         super.randomTick(state, worldIn, pos, rand);
 
-        if (!worldIn.isRegionLoaded(pos.add(-1, -1, -1), pos.add(1, 1, 1))) {
+        if (!worldIn.hasChunksAt(pos.offset(-1, -1, -1), pos.offset(1, 1, 1))) {
             return;
         }
 
-        if (worldIn.getLightLevel(pos.up(), 0) >= 6 && this.getAge(state) <= this.getMaxAge() && rand.nextInt(3) == 0) {
+        if (worldIn.getMaxLocalRawBrightness(pos.above(), 0) >= 6 && this.getAge(state) <= this.getMaxAge() && rand.nextInt(3) == 0) {
             randomGrowTick(state, worldIn, pos, rand);
         }
     }
 
-    private void randomGrowTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+    private void randomGrowTick(BlockState state, ServerLevel worldIn, BlockPos pos, RandomSource rand) {
         int currentAge = this.getAge(state);
         if (currentAge <= this.getMaxAge() && rand.nextInt((int) (25.0F / GROWTH_CHANCE) + 1) == 0) {
             if (currentAge == this.getMaxAge()) {
                 CornUpperBlock cornUpper = (CornUpperBlock) CDObjects.CORN_UPPER;
-                if (cornUpper.getDefaultState().canPlaceAt(worldIn, pos.up()) && worldIn.isAir(pos.up())) {
-                    worldIn.setBlockState(pos.up(), cornUpper.getDefaultState());
+                if (cornUpper.defaultBlockState().canSurvive(worldIn, pos.above()) && worldIn.isEmptyBlock(pos.above())) {
+                    worldIn.setBlockAndUpdate(pos.above(), cornUpper.defaultBlockState());
                 }
             } else {
-                worldIn.setBlockState(pos, state.with(AGE, this.getAge(state)+1));
+                worldIn.setBlockAndUpdate(pos, state.setValue(AGE, this.getAge(state)+1));
             }
         }
     }
 
     static {
-        AGE = Properties.AGE_4;
-        SUPPORTING = BooleanProperty.of("supporting");
+        AGE = BlockStateProperties.AGE_4;
+        SUPPORTING = BooleanProperty.create("supporting");
 
     }
 
 
         @Override
-        public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+        public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
             return new Model(initialBlockState);
         }
 
@@ -199,9 +206,9 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
             public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
             static{
                 for (int i = 0; i <= 3; i++){
-                    MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/corn_stage"+i)));
+                    MODELS.add(ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/corn_stage"+i)));
                 }
-                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/corn_supporting")));
+                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/corn_supporting")));
             }
             public ItemDisplayElement main;
             public Model(BlockState state){
@@ -217,8 +224,8 @@ public class CornBlock extends PlantBlock implements Fertilizable, FactoryBlock,
 
                 ItemStack model;
 
-                if (!state.get(SUPPORTING)) {
-                    switch (state.get(AGE)) {
+                if (!state.getValue(SUPPORTING)) {
+                    switch (state.getValue(AGE)) {
                         case 1 -> model = getModels().get(1);
                         case 2, 3 -> model = getModels().get(2);
                         case 4 -> model = getModels().get(3);

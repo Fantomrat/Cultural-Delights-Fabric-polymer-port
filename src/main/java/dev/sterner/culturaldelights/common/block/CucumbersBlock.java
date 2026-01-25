@@ -10,30 +10,30 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CropBlock;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class CucumbersBlock extends CropBlock implements FactoryBlock, TransparentPlant {
-    public CucumbersBlock(Settings settings) {
+    public CucumbersBlock(Properties settings) {
         super(settings);
     }
 
     @Override
-    protected ItemConvertible getSeedsItem() {
+    protected ItemLike getBaseSeedId() {
         return CDObjects.CUCUMBER_SEEDS;
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new Model(initialBlockState);
     }
 
@@ -41,7 +41,7 @@ public class CucumbersBlock extends CropBlock implements FactoryBlock, Transpare
         public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
         static{
             for (int i = 0; i <= 5; i++){
-                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/cucumbers_stage"+i)));
+                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/cucumbers_stage"+i)));
             }
         }
         public ItemDisplayElement main;
@@ -55,7 +55,7 @@ public class CucumbersBlock extends CropBlock implements FactoryBlock, Transpare
             this.addElement(main);
         }
         protected void updateItem(BlockState state) {
-            this.main.setItem(switch (state.get(AGE)) {
+            this.main.setItem(switch (state.getValue(AGE)) {
                 case 1 -> getModels().get(1);
                 case 2, 3 -> getModels().get(2);
                 case 4, 5 -> getModels().get(3);

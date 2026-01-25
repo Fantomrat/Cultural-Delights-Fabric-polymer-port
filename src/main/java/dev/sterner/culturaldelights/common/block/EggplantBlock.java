@@ -11,11 +11,14 @@ import eu.pb4.polymer.virtualentity.api.attachment.BlockBoundAttachment;
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.block.*;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import xyz.nucleoid.packettweaker.PacketContext;
@@ -23,22 +26,22 @@ import xyz.nucleoid.packettweaker.PacketContext;
 import java.util.ArrayList;
 
 public class EggplantBlock extends CropBlock implements FactoryBlock, TransparentPlant {
-    public EggplantBlock(Settings settings) {
+    public EggplantBlock(Properties settings) {
         super(settings);
     }
 
     @Override
-    protected ItemConvertible getSeedsItem() {
+    protected ItemLike getBaseSeedId() {
         return CDObjects.EGGPLANT_SEEDS;
     }
 
     @Override
     public BlockState getPolymerBreakEventBlockState(BlockState state, PacketContext context) {
-        return Blocks.WHEAT.getDefaultState();
+        return Blocks.WHEAT.defaultBlockState();
     }
 
     @Override
-    public @Nullable ElementHolder createElementHolder(ServerWorld world, BlockPos pos, BlockState initialBlockState) {
+    public @Nullable ElementHolder createElementHolder(ServerLevel world, BlockPos pos, BlockState initialBlockState) {
         return new EggplantBlock.Model(initialBlockState);
     }
 
@@ -46,7 +49,7 @@ public class EggplantBlock extends CropBlock implements FactoryBlock, Transparen
         public static final ArrayList<ItemStack> MODELS = new ArrayList<>();
         static{
             for (int i = 0; i <= 5; i++){
-                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.of(CulturalDelights.MOD_ID, "block/eggplants_stage"+i)));
+                MODELS.add(ItemDisplayElementUtil.getModel(Identifier.fromNamespaceAndPath(CulturalDelights.MOD_ID, "block/eggplants_stage"+i)));
             }
         }
         public ItemDisplayElement main;
@@ -60,7 +63,7 @@ public class EggplantBlock extends CropBlock implements FactoryBlock, Transparen
             this.addElement(main);
         }
         protected void updateItem(BlockState state) {
-            this.main.setItem(switch (state.get(AGE)) {
+            this.main.setItem(switch (state.getValue(AGE)) {
                 case 1 -> getModels().get(1);
                 case 2, 3 -> getModels().get(2);
                 case 4, 5 -> getModels().get(3);

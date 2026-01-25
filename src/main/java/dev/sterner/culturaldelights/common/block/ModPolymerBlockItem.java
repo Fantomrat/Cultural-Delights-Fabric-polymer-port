@@ -1,34 +1,34 @@
 package dev.sterner.culturaldelights.common.block;
 
 import eu.pb4.polymer.core.api.item.PolymerBlockItem;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.phys.Vec3;
 
 public class ModPolymerBlockItem extends PolymerBlockItem {
 
-    public ModPolymerBlockItem(Block block, Settings settings) {
+    public ModPolymerBlockItem(Block block, Properties settings) {
         super(block, settings);
     }
 
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        ActionResult x = super.useOnBlock(context);
-        if (x == ActionResult.SUCCESS) {
-            PlayerEntity player = context.getPlayer();
-            if (player instanceof ServerPlayerEntity) {
-                ServerPlayerEntity serverPlayer = (ServerPlayerEntity)player;
-                Vec3d soundPos = Vec3d.ofCenter(context.getBlockPos().offset(context.getSide()));
-                BlockSoundGroup blockSoundGroup = this.getBlock().getDefaultState().getSoundGroup();
-                serverPlayer.networkHandler.sendPacket(new PlaySoundS2CPacket(
-                        Registries.SOUND_EVENT.getEntry(this.getPlaceSound(this.getBlock().getDefaultState())),
-                        SoundCategory.BLOCKS,
+    public InteractionResult useOn(UseOnContext context) {
+        InteractionResult x = super.useOn(context);
+        if (x == InteractionResult.SUCCESS) {
+            Player player = context.getPlayer();
+            if (player instanceof ServerPlayer) {
+                ServerPlayer serverPlayer = (ServerPlayer)player;
+                Vec3 soundPos = Vec3.atCenterOf(context.getClickedPos().relative(context.getClickedFace()));
+                SoundType blockSoundGroup = this.getBlock().defaultBlockState().getSoundType();
+                serverPlayer.connection.send(new ClientboundSoundPacket(
+                        BuiltInRegistries.SOUND_EVENT.wrapAsHolder(this.getPlaceSound(this.getBlock().defaultBlockState())),
+                        SoundSource.BLOCKS,
                         soundPos.x,
                         soundPos.y,
                         soundPos.z,
@@ -37,7 +37,7 @@ public class ModPolymerBlockItem extends PolymerBlockItem {
                         player.getRandom().nextLong()
                 ));
             }
-            return ActionResult.SUCCESS_SERVER;
+            return InteractionResult.SUCCESS_SERVER;
         } else {
             return x;
         }
